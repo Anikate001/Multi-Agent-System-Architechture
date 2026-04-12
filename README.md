@@ -6,31 +6,31 @@
 
 ## 🏗️ Architecture
 
-```
-                 ┌──────────────┐
-                 │   User Input │
-                 └──────┬───────┘
-                        ↓
-                ┌──────────────┐
-                │   Planner    │  ← Analyzes task, creates plan, decides route
-                └──────┬───────┘
-                       ↓
-          ┌────────────┴────────────┐
-          ↓                         ↓
-   ┌──────────────┐         ┌──────────────┐
-   │  Researcher  │         │    Coder     │  ← Specialist agents
-   └──────┬───────┘         └──────┬───────┘
-          └────────────┬───────────┘
-                       ↓
-                ┌──────────────┐
-                │   Reviewer   │  ← Quality control (can loop back!)
-                └──────┬───────┘
-                       ↓
-                ┌──────────────┐
-                │  Aggregator  │  ← Final output assembly
-                └──────────────┘
-                       ↓
-                    Output
+```mermaid
+graph TD
+    classDef input fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
+    classDef planner fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff;
+    classDef worker fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff;
+    classDef reviewer fill:#FF9800,stroke:#EF6C00,stroke-width:2px,color:#fff;
+    classDef aggregator fill:#E91E63,stroke:#AD1457,stroke-width:2px,color:#fff;
+
+    Start(((👤 User Input))):::input --> Planner{🧠 Planner}:::planner
+    
+    Planner -->|Needs Research| Researcher[🔍 Researcher]:::worker
+    Planner -->|Needs Code| Coder[💻 Coder]:::worker
+    Planner -->|Direct Answer| Reviewer
+    
+    Researcher -.->|Research then Code| Coder
+    
+    Researcher --> Reviewer{🔎 Reviewer}:::reviewer
+    Coder --> Reviewer
+    
+    Reviewer -->|NEEDS_REVISION| Coder
+    Reviewer -->|NEEDS_REVISION| Researcher
+    
+    Reviewer -->|PASS| Aggregator[📦 Aggregator]:::aggregator
+    
+    Aggregator --> Output(((🎯 Final Output))):::input
 ```
 
 ### Agent Roles
