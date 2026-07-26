@@ -135,7 +135,7 @@ nexus/
 2. **Mandatory Citations:** Every claim must have an inline citation linked to a retrieved source.
 3. **Adversarial Critique:** The Critic Agent is specifically prompted to act as an adversarial reviewer looking for unsupported claims.
 
-## 🎤 Interview Questions & Answers
+## 🎤 FAQs
 
 **Q: Why use LangGraph instead of standard LangChain agents (AgentExecutor)?**
 A: Standard LangChain agents are cyclic and non-deterministic; they decide their next step dynamically, which makes them hard to control in production. LangGraph defines a strict state machine (DAG) where control flow is explicit. This allows us to implement reliable loops (like critique/revision), human-in-the-loop pausing, and strict typing across agent boundaries.
