@@ -151,3 +151,11 @@ A: We use structured outputs natively supported by Gemini/OpenAI APIs. Furthermo
 
 ## 📝 License
 MIT
+
+## 📏 Benchmark
+
+`backend/benchmarks/run_benchmark.py` runs the full LangGraph workflow on 10 fixed research queries and
+reports success rate, p50/p95 latency, per-agent latency, Critic quality score, first-draft approval rate,
+revision loops, citations per report and the Redis cache speed-up. See the docstring for setup.
+
+_Results: coming after the first run._
