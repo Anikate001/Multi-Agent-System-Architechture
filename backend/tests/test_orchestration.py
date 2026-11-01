@@ -1,6 +1,6 @@
 import pytest
-from backend.orchestration.graph import build_research_graph
-from backend.orchestration.state import ResearchState
+from orchestration.graph import build_research_graph
+from orchestration.state import ResearchState
 
 def test_graph_compilation():
     graph = build_research_graph()
