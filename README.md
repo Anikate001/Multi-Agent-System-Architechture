@@ -1,153 +1,182 @@
-# 🧠 NEXUS — Multi-Agent Research Platform
+<div align="center">
 
-![Python](https://img.shields.io/badge/python-3.12-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)
-![LangGraph](https://img.shields.io/badge/LangGraph-0.2.0-blueviolet.svg)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.40-FF4B4B.svg)
-![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg)
+# 🧠 NEXUS
 
-An enterprise-grade, multi-agent AI research platform that orchestrates specialized agents to autonomously generate publication-quality, heavily-cited research reports.
+### A multi-agent research platform: five LangGraph agents plan, research, analyse, write and critique a cited report, with a human in the loop when it matters.
 
-## 🎯 What is Nexus?
-Nexus is a production-ready AI orchestration platform built on LangGraph and FastAPI. It is not a toy chatbot; it is a complex state machine that decomposes tasks, conducts web research, synthesizes information, writes structured reports, and conducts self-critique with human-in-the-loop capabilities. It demonstrates advanced agentic engineering, stateful long-context management, and production AI infrastructure.
+<p>
+  <img src="https://img.shields.io/badge/LangGraph-state%20machine-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangGraph">
+  <img src="https://img.shields.io/badge/FastAPI-async-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Gemini-2.0%20Flash-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini 2.0 Flash">
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
+</p>
+<p>
+  <a href="https://github.com/Anikate001/Multi-Agent-System-Architechture/actions/workflows/tests.yml"><img src="https://github.com/Anikate001/Multi-Agent-System-Architechture/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis">
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square" alt="MIT">
+</p>
 
-## ✨ Key Features
-* 🤖 **Multi-Agent Orchestration:** 5 specialized agents (Planner, Researcher, Analyst, Writer, Critic).
-* 🔄 **Stateful Workflows:** Built with LangGraph for persistent, fault-tolerant execution.
-* 🔍 **Citation Verification:** Every claim is explicitly linked to retrieved web sources.
-* 🔁 **Critique & Revision Loops:** Autonomous self-correction and hallucination mitigation.
-* 👤 **Human-in-the-Loop:** Optional human approval workflows for critical outputs.
-* 📊 **Structured Outputs:** Enforced via Pydantic across all agent boundaries.
-* ⚡ **Async Infrastructure:** Fully asynchronous FastAPI backend.
-* 🗄️ **Persistent State:** PostgreSQL and Redis integration.
-* 🎨 **Premium UI:** Glassmorphism Streamlit interface with real-time WebSocket updates.
-* 🐳 **Containerized:** Docker Compose ready for immediate deployment.
+[Architecture](#-architecture) · [Agents](#-the-agents) · [Quick start](#-quick-start) · [API](#-api) · [Benchmark](#-benchmark)
 
-## 🏗️ System Architecture
+</div>
+
+---
+
+## ✨ Highlights
+
+- **A real state machine, not a free-running agent loop.** LangGraph makes every transition explicit: plan → research → analyse → write → review, with a bounded revision loop.
+- **Self-critique.** A Critic agent scores each draft from 1 to 10 and sends anything below 7 back to the Writer, up to 3 times.
+- **Human-in-the-loop.** With approval enabled, the graph genuinely pauses before completion (`interrupt_before`) until a person approves or rejects with feedback.
+- **Cited by construction.** The Researcher pulls sources through Tavily search, and every claim in the report links to a source.
+- **Production plumbing.** Async FastAPI with WebSocket progress streaming, Pydantic-validated agent outputs, PostgreSQL persistence, Redis-cached search, a health check, Docker Compose, and API tests in GitHub Actions.
+
+## 🏗️ Architecture
 
 ```mermaid
-graph TD
-    Client[Streamlit UI] <-->|HTTP / WebSockets| API[FastAPI Backend]
-    
-    subgraph Nexus Backend
-        API --> Orchestrator[LangGraph Orchestrator]
-        Orchestrator --> DB[(PostgreSQL)]
-        Orchestrator --> Cache[(Redis)]
-        
-        subgraph Agents
-            Planner(Planner Agent)
-            Researcher(Researcher Agent)
-            Analyst(Analyst Agent)
-            Writer(Writer Agent)
-            Critic(Critic Agent)
-        end
-        
-        Orchestrator --> Agents
-    end
-    
-    Researcher <--> Tavily[Tavily Search API]
-    Agents <--> LLM[Gemini 2.0 Flash API]
+flowchart LR
+    UI["🖥️ Streamlit UI"] <-- "REST + WebSockets" --> API["⚡ FastAPI"]
+    API --> ORCH["🧩 LangGraph orchestrator"]
+    ORCH <--> PG[("PostgreSQL<br/>tasks + reports")]
+    ORCH <--> RD[("Redis<br/>state + search cache")]
+    ORCH --> AG["🤖 5 agents"]
+    AG <--> LLM["Gemini 2.0 Flash"]
+    AG <--> WEB["Tavily web search"]
 ```
 
-## 🔄 Agent Orchestration Flow
+### Workflow
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PLANNER: New Request
-    PLANNER --> RESEARCHER: Sub-tasks
-    RESEARCHER --> ANALYST: Raw Findings
-    ANALYST --> WRITER: Synthesis
-    WRITER --> CRITIC: Draft Report
-    
-    CRITIC --> WRITER: Request Revision (if score < 7)
-    CRITIC --> HUMAN_REVIEW: Approved (if required)
-    CRITIC --> [*]: Approved (if not required)
-    
-    HUMAN_REVIEW --> WRITER: Rejected with feedback
-    HUMAN_REVIEW --> [*]: Approved
+    direction LR
+    [*] --> Planner
+    Planner --> Researcher: sub-tasks
+    Researcher --> Analyst: findings + sources
+    Analyst --> Writer: synthesis
+    Writer --> Critic: draft
+    Critic --> Writer: score < 7 (max 3 revisions)
+    Critic --> HumanReview: approved, approval required
+    Critic --> [*]: approved
+    HumanReview --> Writer: rejected with feedback
+    HumanReview --> [*]: approved
 ```
 
-## 🤖 Agent Descriptions
+More diagrams: [`docs/architecture.md`](docs/architecture.md).
 
-| Agent | Role | Input | Output | Tools Used |
-|-------|------|-------|--------|------------|
-| **Planner** | Decomposes complex queries into a structured execution plan. | User Query | Sub-tasks, Dependencies | LLM reasoning |
-| **Researcher** | Executes search queries, parses documents, and extracts facts. | Sub-tasks | Research Findings, Sources | Web Search, PDF Parser |
-| **Analyst** | Synthesizes findings, identifies patterns and contradictions. | Research Findings | Analytical Narrative | LLM reasoning |
-| **Writer** | Authors the final report with structured formatting and citations. | Analytical Narrative | Draft Report | LLM reasoning |
-| **Critic** | Evaluates the draft for hallucinations, coherence, and accuracy. | Draft Report | Quality Score, Revisions | LLM reasoning |
+## 🤖 The agents
 
-## 🛠️ Tech Stack
+| Agent | Job | Output |
+|---|---|---|
+| **Planner** | Breaks the question into a structured research plan | Sub-tasks with dependencies |
+| **Researcher** | Searches the web (Tavily, cached in Redis) and extracts facts | Findings with sources |
+| **Analyst** | Synthesises findings, spots patterns and contradictions | Analytical narrative |
+| **Writer** | Writes the report with inline citations | Draft report |
+| **Critic** | Reviews for unsupported claims, coherence and citation quality | 1-10 score, approve or revise |
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Orchestration** | LangGraph | State machine, agent routing, conditional logic |
-| **LLM Framework** | LangChain | Tool bindings, prompt management, model interaction |
-| **Backend** | FastAPI | Async API, WebSockets, background tasks |
-| **Frontend** | Streamlit | Real-time tracking, report rendering |
-| **Database** | PostgreSQL | Persistent state, report storage |
-| **Cache/KV** | Redis | Ephemeral state, rate limiting, caching |
-| **Validation** | Pydantic | Structured outputs, schema enforcement |
+All agent outputs are Pydantic models, LLM calls retry with `tenacity`, and a context manager summarises older
+state to stay inside the token budget.
 
-## 📁 Project Structure
+## 🚀 Quick start
+
+**Prerequisites:** Docker, a [Gemini API key](https://aistudio.google.com/apikey) and a [Tavily API key](https://tavily.com).
+
+```bash
+git clone https://github.com/Anikate001/Multi-Agent-System-Architechture.git
+cd Multi-Agent-System-Architechture/infra
+cp .env.example .env          # add GEMINI_API_KEY and TAVILY_API_KEY
+docker compose up --build     # UI: http://localhost:8501 · API docs: http://localhost:8000/docs
 ```
-nexus/
+
+<details>
+<summary><b>Run the backend without Docker</b></summary>
+
+```bash
+docker compose -f infra/docker-compose.yml up -d db redis   # Postgres + Redis only
+cd backend
+pip install -r requirements.txt
+export GEMINI_API_KEY=... TAVILY_API_KEY=...
+export DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/nexus
+export REDIS_URL=redis://localhost:6379/0
+uvicorn main:app --reload
+```
+
+</details>
+
+## 🔌 API
+
+Served under both `/api` and `/api/v1`.
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/research` | Start a research task (`query`, `depth`, `max_sources`, `require_approval`) |
+| `GET` | `/research/{id}/status` | `running` · `needs_approval` · `completed` · `failed`, with progress and agent actions |
+| `GET` | `/research/{id}/report` | Latest report as JSON |
+| `GET` | `/research/{id}/export/markdown` | Report as Markdown |
+| `POST` | `/research/{id}/approve` | Approve a paused report |
+| `POST` | `/research/{id}/reject` | Reject with `{"feedback": "..."}` to trigger a revision |
+| `GET` | `/metrics` | Task counts, tokens, average latency |
+| `GET` | `/health` | Database and Redis health |
+| `WS` | `/ws/research/{id}` | Live progress events |
+
+## 📏 Benchmark
+
+[`backend/benchmarks/run_benchmark.py`](backend/benchmarks/run_benchmark.py) runs the full workflow on 10 fixed
+research questions and reports success rate, p50/p95 latency, time per agent, mean Critic score, first-draft
+approval rate, revision loops, citations per report and the Redis cache speed-up.
+
+```bash
+cd backend && python -m benchmarks.run_benchmark --limit 3   # quick smoke test
+```
+
+## 🧪 Tests
+
+```bash
+cd backend && python -m pytest tests -q
+```
+
+Includes API contract tests that run the full request lifecycle against a fake orchestrator, so they need no API
+keys, Postgres or Redis. They run on every push in GitHub Actions.
+
+## 📁 Project structure
+
+```
 ├── backend/
-│   ├── agents/         # Planner, Researcher, Analyst, Writer, Critic
-│   ├── api/            # FastAPI routes, WebSockets
-│   ├── memory/         # Context management, state persistence
-│   ├── orchestration/  # LangGraph state machine, nodes, edges
-│   ├── prompts/        # System prompts and templates
-│   ├── schemas/        # Pydantic models for I/O
-│   ├── services/       # LLM, DB, Cache services
-│   └── tools/          # Web search, code execution, parsers
-├── frontend/
-│   ├── components/     # Streamlit custom UI elements
-│   ├── utils/          # API clients
-│   └── app.py          # Main UI entry point
-└── infra/
-    └── docker-compose.yml
+│   ├── agents/          # Planner, Researcher, Analyst, Writer, Critic
+│   ├── api/             # REST routes and WebSocket manager
+│   ├── orchestration/   # LangGraph graph, nodes and state
+│   ├── memory/          # Context summarisation, state persistence
+│   ├── services/        # LLM, PostgreSQL and Redis services
+│   ├── tools/           # Web search, PDF parsing, citation extraction
+│   ├── schemas/         # Pydantic models
+│   ├── benchmarks/      # End-to-end benchmark
+│   └── tests/           # Pytest suite
+├── frontend/            # Streamlit dashboard
+├── infra/               # Docker Compose stack
+├── docs/                # Architecture diagrams and notes
+└── legacy/              # First single-process prototype
 ```
 
-## 🚀 Quick Start
+<details>
+<summary><b>💬 Design FAQ</b></summary>
 
-1. **Clone the repository**
-2. **Configure Environment:**
-   ```bash
-   cp infra/.env.example infra/.env
-   # Edit .env and add your GEMINI_API_KEY and TAVILY_API_KEY
-   ```
-3. **Run with Docker Compose:**
-   ```bash
-   cd infra
-   docker-compose up --build
-   ```
-4. **Access the App:** Open `http://localhost:8501`
+**Why LangGraph instead of a classic agent executor?**
+An executor decides its next step at runtime, which is hard to control. A LangGraph state machine makes control flow
+explicit, so loops like critique-and-revise and pauses for human review are predictable and testable.
 
-## 🛡️ Engineering Standards
-* **Clean Architecture:** Strict separation between I/O, business logic (agents), and orchestration.
-* **Structured Outputs:** 100% reliance on structured JSON generation via Pydantic schemas.
-* **Async by Default:** `asyncio` used for all API calls, DB queries, and tool execution.
-* **Graceful Degradation:** Agents implement fallback strategies if external APIs timeout.
+**How does state move between agents?**
+Through a typed `ResearchState` with reducers: lists such as `agent_actions` append, while fields such as
+`current_agent` overwrite. Progress is also written to Redis and PostgreSQL after every step.
 
-## 🧠 Hallucination Mitigation Strategy
-1. **Source-Grounded Generation:** The Writer Agent is strictly prompted to only use information present in the Analyst's output.
-2. **Mandatory Citations:** Every claim must have an inline citation linked to a retrieved source.
-3. **Adversarial Critique:** The Critic Agent is specifically prompted to act as an adversarial reviewer looking for unsupported claims.
+**How are long research tasks kept inside the context window?**
+The Researcher passes structured findings (summaries and key points) rather than raw pages, and a context manager
+summarises older messages when the token budget runs low.
 
-## 🎤 FAQs
+**What if the model returns malformed JSON?**
+Outputs are parsed into Pydantic models, and calls are wrapped in `tenacity` retries.
 
-**Q: Why use LangGraph instead of standard LangChain agents (AgentExecutor)?**
-A: Standard LangChain agents are cyclic and non-deterministic; they decide their next step dynamically, which makes them hard to control in production. LangGraph defines a strict state machine (DAG) where control flow is explicit. This allows us to implement reliable loops (like critique/revision), human-in-the-loop pausing, and strict typing across agent boundaries.
-
-**Q: How do you handle context window limits in long research tasks?**
-A: The system implements a `ContextManager` that prunes and summarizes older state. Instead of passing the entire raw HTML of web pages between agents, the Researcher extracts structured `ResearchFindings` (summaries + key points). Only these condensed artifacts are passed to the Analyst and Writer, drastically reducing token usage.
-
-**Q: How is the state passed between agents?**
-A: We use a LangGraph `TypedDict` (`ResearchState`) with reducers. For example, the `errors` list uses an `update_list` reducer (appends), while `current_agent` uses an `overwrite` reducer. This state is backed by PostgreSQL via a `MemorySaver` checkpointer, allowing workflows to pause and resume.
-
-**Q: What happens if an LLM outputs malformed JSON?**
-A: We use structured outputs natively supported by Gemini/OpenAI APIs. Furthermore, we wrap calls in `tenacity` retry blocks. If parsing fails, the error is caught, and the LLM is re-prompted with the validation error to self-correct.
+</details>
 
 ## 📝 License
+
 MIT

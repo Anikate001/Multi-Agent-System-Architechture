@@ -1,5 +1,5 @@
 import pytest
-from backend.schemas.research import ResearchTask, Source, Citation, ResearchFinding, ReportSection, ResearchReport
+from schemas.research import ResearchTask, Source, Citation, ResearchFinding, ReportSection, ResearchReport
 
 def test_research_task_creation():
     task = ResearchTask(

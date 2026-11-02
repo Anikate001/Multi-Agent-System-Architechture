@@ -81,7 +81,9 @@ def build_research_graph():
 
     # Compile with in-memory checkpointer for pause/resume
     checkpointer = MemorySaver()
-    return workflow.compile(checkpointer=checkpointer)
+    # Pause before human_review so the API can wait for approve/reject; without this the
+    # graph would run straight through human_review and loop back to the writer.
+    return workflow.compile(checkpointer=checkpointer, interrupt_before=["human_review"])
 
 
 class ResearchOrchestrator:
