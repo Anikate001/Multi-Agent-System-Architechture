@@ -9,6 +9,8 @@ from prompts.templates import PromptTemplates
 
 logger = structlog.get_logger(__name__)
 
+APPROVAL_SCORE = 7
+
 class ReviewFeedback(BaseModel):
     quality_score: int = Field(..., description="Score from 1 to 10")
     hallucinations_detected: List[str] = Field(default_factory=list, description="Claims made without source support")
@@ -30,9 +32,21 @@ class CriticAgent(BaseAgent):
             
         system_prompt = PromptTemplates.critic_prompt()
         
-        # In a real system, we'd also pass in the raw sources to allow the critic to cross-reference
-        # For simplicity in this implementation, we just pass the draft which includes citations
-        user_message = f"Please review the following draft research report. Check for unsupported claims, citation formatting, and overall quality.\n\nDraft Report:\n{str(draft_dict)}"
+        # Give the Critic the evidence the Writer had, so it can check claims against sources.
+        source_lines, seen = [], set()
+        for finding in state.get("findings", []):
+            for src in finding.get("sources", []):
+                url = src.get("url", "")
+                if url and url not in seen:
+                    seen.add(url)
+                    source_lines.append(f"[{len(seen)}] {src.get('title', '')} ({url})\n{src.get('snippet', '')}")
+        sources_text = "\n\n".join(source_lines) or "(no sources were retrieved)"
+
+        user_message = (
+            "Review the draft research report below. Flag any claim the SOURCES do not support, "
+            "check that citations point to real sources from the list, and judge overall quality.\n\n"
+            f"SOURCES:\n{sources_text}\n\nDRAFT REPORT:\n{str(draft_dict)}"
+        )
         
         async def review_draft():
             return await self.llm.generate_structured(
@@ -47,6 +61,8 @@ class CriticAgent(BaseAgent):
         
         if success:
             review: ReviewFeedback = review_result
+            # Approval is decided in code, not left to the model: score >= 7 and no unsupported claims.
+            review.approved = review.quality_score >= APPROVAL_SCORE and not review.hallucinations_detected
             
             await self.log_action(
                 action="review_report",

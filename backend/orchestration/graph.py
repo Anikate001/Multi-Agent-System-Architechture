@@ -38,7 +38,9 @@ def build_research_graph():
 
     # Pass-through node to chain two conditional edges cleanly
     async def _passthrough(state):
-        return state
+        # Return no updates. Returning the whole state would re-apply the additive
+        # reducers, doubling revision_count and duplicating findings and errors.
+        return {}
 
     workflow.add_node("human_check_node", _passthrough)
 
@@ -145,11 +147,13 @@ class ResearchOrchestrator:
 
         async for output in self.graph.astream(initial_state, config=config):
             node_name = list(output.keys())[0]
-            state_update = output[node_name]
+            # Pass-through and interrupt steps yield no update (None or {}).
+            state_update = output[node_name] or {}
 
             logger.info("graph_step_completed", node=node_name)
 
-            await self.memory.save_state(task_id, state_update)
+            if state_update:
+                await self.memory.save_state(task_id, state_update)
 
             if callback:
                 await callback(
