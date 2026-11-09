@@ -1,5 +1,6 @@
 import time
 import uuid
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 import structlog
@@ -15,6 +16,7 @@ router = APIRouter()
 
 # Order of the workflow nodes, used to estimate progress.
 _NODE_PROGRESS = {"plan": 15.0, "research": 40.0, "analyze": 60.0, "write": 80.0, "review": 95.0}
+_NODE_AGENT = {"plan": "planner", "research": "researcher", "analyze": "analyst", "write": "writer", "review": "critic"}
 
 
 # --------------------------------------------------------------------------- shared services
@@ -46,8 +48,25 @@ async def run_task_background(task_id: str, request_body: ResearchRequest, app) 
         include_code_analysis=False,
     )
 
+    llm = getattr(app.state.orchestrator, "llm", None)
+    clock = {"t": time.time(), "tokens": getattr(llm, "total_tokens_used", 0)}
+    registry[task_id]["actions"] = []
+
     async def callback(update_data: dict):
-        registry[task_id]["last_node"] = update_data.get("node")
+        node = update_data.get("node")
+        registry[task_id]["last_node"] = node
+        # Record time and tokens per agent step for the dashboard (one run at a time on the demo,
+        # so the token delta belongs to this task)
+        now, tokens = time.time(), getattr(llm, "total_tokens_used", 0)
+        if node in _NODE_PROGRESS:
+            registry[task_id]["actions"].append({
+                "agent": _NODE_AGENT[node],
+                "action": node,
+                "latency_ms": round((now - clock["t"]) * 1000),
+                "tokens_used": max(tokens - clock["tokens"], 0),
+                "timestamp": datetime.fromtimestamp(now, timezone.utc),
+            })
+        clock.update(t=now, tokens=tokens)
         await manager.broadcast_to_task(task_id, {"type": "status", "data": update_data})
 
     try:
@@ -92,6 +111,63 @@ async def _load(request: Request, task_id: str):
     return snapshot, values
 
 
+# Rough blended Flash-tier price per token, for the dashboard's cost estimate
+_USD_PER_TOKEN = 0.25 / 1_000_000
+
+
+def _agents_summary(actions: list, current_agent: str, status: str) -> dict:
+    """Per-agent totals in the shape the Streamlit tracker and analytics panels read."""
+    agents = {}
+    for role in _NODE_AGENT.values():
+        mine = [a for a in actions if a["agent"] == role]
+        if mine:
+            state = "completed"
+        elif role == current_agent and status == "running":
+            state = "active"
+        else:
+            state = "pending"
+        tokens = sum(a["tokens_used"] for a in mine)
+        agents[role] = {
+            "status": state,
+            "tokens": tokens,
+            "latency_ms": sum(a["latency_ms"] for a in mine),
+            "cost_usd": round(tokens * _USD_PER_TOKEN, 6),
+            "runs": len(mine),
+        }
+    return agents
+
+
+def _report_for_frontend(report: dict, values: dict) -> dict:
+    """The stored report plus the fields the Streamlit report viewer and citation panel read."""
+    review = values.get("review") or {}
+    body = _report_markdown({**report, "title": ""}).lstrip("# \n")
+    citations = [
+        {
+            "id": i,
+            "text": c.get("claim", ""),
+            "url": c.get("source_url", ""),
+            "source_title": c.get("source_title", ""),
+            "verified": c.get("verified", False),
+            "confidence": c.get("confidence", 0.0),
+        }
+        for i, c in enumerate((c for s in report.get("sections", []) for c in s.get("citations", [])), 1)
+    ]
+    sources = [{**s, "relevance": s.get("relevance_score", 0)} for s in report.get("bibliography", [])]
+    return {
+        **report,
+        "markdown": body,
+        "quality_score": review.get("quality_score", 0),
+        "citations": citations,
+        "sources": sources,
+        "metadata": {
+            **(report.get("metadata") or {}),
+            "word_count": len(body.split()),
+            "sections": len(report.get("sections", [])),
+            "revisions": max(int(values.get("revision_count", 0)) - 1, 0),
+        },
+    }
+
+
 def _report_markdown(report: dict) -> str:
     lines = [f"# {report.get('title', 'Research report')}", "", report.get("abstract", ""), ""]
     for section in report.get("sections", []):
@@ -104,9 +180,32 @@ def _report_markdown(report: dict) -> str:
 
 
 # --------------------------------------------------------------------------- endpoints
+def _check_run_limits(request: Request) -> None:
+    """Reject a new run when the demo's daily or concurrent run limit is reached."""
+    settings = request.app.state.settings
+    registry = _tasks(request)
+    if settings.max_concurrent_runs:
+        running = sum(1 for t in registry.values() if not t.get("finished_at"))
+        if running >= settings.max_concurrent_runs:
+            raise HTTPException(status_code=429, detail="Another research run is in progress. Try again in a minute.")
+    if settings.max_runs_per_day:
+        today = datetime.now(timezone.utc).date()
+        started_today = sum(
+            1 for t in registry.values()
+            if datetime.fromtimestamp(t["started_at"], timezone.utc).date() == today
+        )
+        if started_today >= settings.max_runs_per_day:
+            raise HTTPException(
+                status_code=429,
+                detail=f"This demo's limit of {settings.max_runs_per_day} research runs per day has been reached. "
+                "It resets at 00:00 UTC.",
+            )
+
+
 @router.post("/research", response_model=ResearchResponse)
 async def start_research(body: ResearchRequest, background_tasks: BackgroundTasks, request: Request):
     """Start a new research task."""
+    _check_run_limits(request)
     task_id = str(uuid.uuid4())
     logger.info("starting_research_task", task_id=task_id, query=body.query)
     _tasks(request)[task_id] = {"query": body.query, "started_at": time.time(), "failed": False}
@@ -123,14 +222,19 @@ async def get_task_status(task_id: str, request: Request):
     status = _public_status(task_id, snapshot, values, _tasks(request))
     last_node = _tasks(request).get(task_id, {}).get("last_node")
     progress = 100.0 if status == "completed" else _NODE_PROGRESS.get(last_node, 5.0)
+    actions = _tasks(request).get(task_id, {}).get("actions") or []
+    review = values.get("review") or {}
     return TaskStatusResponse(
         task_id=task_id,
         status=status,
         current_agent=values.get("current_agent", ""),
         progress_pct=progress,
-        agent_actions=values.get("agent_actions", []),
+        agent_actions=actions,
+        agents=_agents_summary(actions, values.get("current_agent", ""), status),
+        revision_count=max(int(values.get("revision_count", 0)) - 1, 0),
+        quality_scores=[review["quality_score"]] if review.get("quality_score") else [],
         token_usage=values.get("token_usage", {}),
-        estimated_cost=0.0,
+        estimated_cost=round(sum(a["tokens_used"] for a in actions) * _USD_PER_TOKEN, 6),
         report=values.get("draft_report") if status == "completed" else None,
     )
 
@@ -142,7 +246,7 @@ async def get_report(task_id: str, request: Request):
     report = values.get("draft_report")
     if not report:
         raise HTTPException(status_code=404, detail="Report not ready yet")
-    return report
+    return _report_for_frontend(report, values)
 
 
 @router.get("/research/{task_id}/export/markdown", response_class=PlainTextResponse)

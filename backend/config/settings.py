@@ -84,6 +84,17 @@ class Settings(BaseSettings):
         gt=0,
         description="Rate limit: requests per minute to upstream LLM",
     )
+    max_runs_per_day: int = Field(
+        default=0,
+        ge=0,
+        description="Research runs allowed per UTC day across all users (0 = unlimited). "
+        "Protects free-tier API quotas on a public demo.",
+    )
+    max_concurrent_runs: int = Field(
+        default=0,
+        ge=0,
+        description="Research runs allowed at the same time (0 = unlimited)",
+    )
 
     # --- Validators ----------------------------------------------------------
     @field_validator("log_level")

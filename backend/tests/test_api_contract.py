@@ -56,7 +56,24 @@ def client():
     app.state.orchestrator = FakeOrchestrator()
     app.state.db = FakeDB()
     app.state.tasks = {}
+    app.state.settings = SimpleNamespace(max_runs_per_day=0, max_concurrent_runs=0)
     return TestClient(app), app
+
+
+def test_daily_run_limit_returns_429(client):
+    c, app = client
+    app.state.settings.max_runs_per_day = 1
+    assert c.post("/api/v1/research", json={"query": "first question here"}).status_code == 200
+    r = c.post("/api/v1/research", json={"query": "second question here"})
+    assert r.status_code == 429 and "per day" in r.json()["detail"]
+
+
+def test_concurrent_run_limit_returns_429(client):
+    c, app = client
+    app.state.settings.max_concurrent_runs = 1
+    app.state.tasks["busy"] = {"query": "q", "started_at": 0, "failed": False}
+    r = c.post("/api/v1/research", json={"query": "another question"})
+    assert r.status_code == 429
 
 
 def test_full_lifecycle_on_frontend_paths(client):
