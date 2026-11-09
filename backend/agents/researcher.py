@@ -75,7 +75,7 @@ class ResearchAgent(BaseAgent):
         new_findings = []
         for res in results:
             if isinstance(res, ResearchFinding):
-                new_findings.append(res.model_dump())
+                new_findings.append(res.model_dump(mode="json"))
             elif isinstance(res, Exception):
                 logger.error("research_task_exception", error=str(res))
                 

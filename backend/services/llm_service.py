@@ -14,7 +14,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 from tenacity import (
     retry,
-    retry_if_exception_type,
+    retry_if_exception,
     stop_after_attempt,
     wait_exponential,
 )
@@ -23,9 +23,16 @@ from config.settings import Settings
 
 logger = structlog.get_logger(__name__)
 
-# Approximate cost per 1M tokens (Gemini 2.0 Flash pricing — adjust as needed)
+# Approximate cost per 1M tokens (rough Flash-tier pricing; adjust for your model)
 _INPUT_COST_PER_M = 0.10
 _OUTPUT_COST_PER_M = 0.40
+
+
+def _is_retryable(exc: BaseException) -> bool:
+    """Retry transient failures, but not a used-up daily quota: retrying that only
+    burns more of tomorrow's free-tier requests and can never succeed today."""
+    msg = str(exc)
+    return not ("RESOURCE_EXHAUSTED" in msg and ("PerDay" in msg or "per day" in msg))
 
 
 class LLMService:
@@ -44,7 +51,9 @@ class LLMService:
             model=settings.model_name,
             google_api_key=settings.gemini_api_key,
             temperature=settings.temperature,
-            max_retries=settings.max_retries,
+            # Retries are handled once, by tenacity below. Letting LangChain retry as well
+            # multiplied attempts (up to 12 per call) and exhausted free-tier quotas.
+            max_retries=0,
         )
         self._semaphore = asyncio.Semaphore(settings.rate_limit_rpm)
         self._encoding = tiktoken.get_encoding("cl100k_base")
@@ -67,7 +76,9 @@ class LLMService:
     def _estimate_message_tokens(self, messages: list[BaseMessage]) -> int:
         total = 0
         for msg in messages:
-            total += self.count_tokens(msg.content if isinstance(msg.content, str) else str(msg.content))
+            # Agents pass plain {"role", "content"} dicts; LangChain message objects also work.
+            content = msg.get("content", "") if isinstance(msg, dict) else msg.content
+            total += self.count_tokens(content if isinstance(content, str) else str(content))
         return total
 
     # ------------------------------------------------------------------
@@ -75,7 +86,7 @@ class LLMService:
     # ------------------------------------------------------------------
 
     @retry(
-        retry=retry_if_exception_type((Exception,)),
+        retry=retry_if_exception(_is_retryable),
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=30),
         reraise=True,

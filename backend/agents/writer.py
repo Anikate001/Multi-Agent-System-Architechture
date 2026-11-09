@@ -16,7 +16,12 @@ class WriterAgent(BaseAgent):
         query = state.get("query", "")
         analysis = state.get("analysis", {})
         findings = state.get("findings", [])
-        previous_feedback = state.get("review", {}).get("feedback", "") if state.get("review") else ""
+        # The Critic (and a human rejection) put actionable notes in `specific_revisions_requested`.
+        review = state.get("review") or {}
+        previous_feedback = review.get("specific_revisions_requested", "")
+        issues = review.get("hallucinations_detected", []) + review.get("citation_issues", []) + review.get("coherence_issues", [])
+        if issues:
+            previous_feedback += "\nIssues found:\n" + "\n".join(f"- {i}" for i in issues)
         
         logger.info("writer_started", has_feedback=bool(previous_feedback))
         
@@ -49,7 +54,7 @@ class WriterAgent(BaseAgent):
                 output_schema=ResearchReport
             )
             # Ensure metadata and timestamps are set
-            report_schema.generated_at = datetime.datetime.now().isoformat()
+            report_schema.generated_at = datetime.datetime.now(datetime.timezone.utc)
             
             # Map URLs to full Source objects in bibliography
             bib_sources = []
@@ -70,7 +75,7 @@ class WriterAgent(BaseAgent):
                 latency_ms=latency,
                 success=True
             )
-            return {"draft_report": report_result.model_dump(), "status": "WRITING_COMPLETED", "current_agent": self.role.value}
+            return {"draft_report": report_result.model_dump(mode="json"), "status": "WRITING_COMPLETED", "current_agent": self.role.value}
         else:
             await self.log_action(
                 action="write_report",

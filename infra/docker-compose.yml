@@ -101,7 +101,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../backend/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - nexus-network
     healthcheck:

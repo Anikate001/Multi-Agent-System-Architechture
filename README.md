@@ -7,7 +7,7 @@
 <p>
   <img src="https://img.shields.io/badge/LangGraph-state%20machine-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangGraph">
   <img src="https://img.shields.io/badge/FastAPI-async-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Gemini-2.0%20Flash-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini 2.0 Flash">
+  <img src="https://img.shields.io/badge/Gemini-3.5%20Flash--Lite-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini 3.5 Flash-Lite">
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
 </p>
 <p>
@@ -41,7 +41,7 @@ flowchart LR
     ORCH <--> PG[("PostgreSQL<br/>tasks + reports")]
     ORCH <--> RD[("Redis<br/>state + search cache")]
     ORCH --> AG["🤖 5 agents"]
-    AG <--> LLM["Gemini 2.0 Flash"]
+    AG <--> LLM["Gemini 3.5 Flash-Lite"]
     AG <--> WEB["Tavily web search"]
 ```
 
@@ -55,7 +55,7 @@ stateDiagram-v2
     Researcher --> Analyst: findings + sources
     Analyst --> Writer: synthesis
     Writer --> Critic: draft
-    Critic --> Writer: score < 7 (max 3 revisions)
+    Critic --> Writer: not approved (max 3 reviews)
     Critic --> HumanReview: approved, approval required
     Critic --> [*]: approved
     HumanReview --> Writer: rejected with feedback
@@ -123,11 +123,31 @@ Served under both `/api` and `/api/v1`.
 
 [`backend/benchmarks/run_benchmark.py`](backend/benchmarks/run_benchmark.py) runs the full workflow on 10 fixed
 research questions and reports success rate, p50/p95 latency, time per agent, mean Critic score, first-draft
-approval rate, revision loops, citations per report and the Redis cache speed-up.
+approval rate, revision loops and citations per report.
+
+**Results** (9 Nov 2026, 10 questions, depth `quick`, `gemini-3.5-flash-lite`, Tavily basic search):
+
+| Metric | Result |
+|---|---|
+| Success rate | **10 / 10** reports produced |
+| End-to-end latency | **21.7 s** median, 31.8 s p95 |
+| Time per agent (mean) | Planner 2.9 s · Researcher 5.7 s · Analyst 2.7 s · Writer 11.0 s · Critic 1.1 s |
+| Citations per report | 12.0 |
+| First-draft approval by the Critic | 9 / 10 (mean revisions 0.1) |
+| Mean Critic score | 9.4 / 10 |
+
+How to read it: the Writer is half the run time, and the Researcher's sub-tasks run in parallel. One run
+hit a failed Writer call and recovered through the revision loop. The Critic score is the model grading
+output from the same model family, so treat it as a sanity check rather than a quality measure; an
+independent judge or human review is the next step. Repeating a query hits the Redis search cache, but the
+Researcher's time is dominated by LLM extraction, so the cache saves Tavily calls rather than wall-clock time.
 
 ```bash
 cd backend && python -m benchmarks.run_benchmark --limit 3   # quick smoke test
 ```
+
+The free Gemini tier is limited per model per day; `gemini-3.6-flash` allows about 20 requests, enough for
+roughly 2 reports, so the default is `gemini-3.5-flash-lite`. Set `MODEL_NAME` to switch.
 
 ## 🧪 Tests
 

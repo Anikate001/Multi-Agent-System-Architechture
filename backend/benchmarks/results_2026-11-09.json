@@ -1,0 +1,204 @@
+{
+  "summary": {
+    "runs": 10,
+    "success_rate": 1.0,
+    "latency_p50_s": 21.7,
+    "latency_p95_s": 31.8,
+    "mean_agent_s": {
+      "planner": 2.9,
+      "researcher": 5.7,
+      "analyst": 2.7,
+      "writer": 11.0,
+      "critic": 1.1
+    },
+    "mean_quality_score": 9.4,
+    "first_draft_approval_rate": 0.9,
+    "mean_revisions": 0.1,
+    "citations_per_report": 12.0,
+    "verified_citation_rate": 0.458,
+    "researcher_s_cold": 4.8,
+    "researcher_s_cached": 7.5
+  },
+  "runs": [
+    {
+      "query": "What are the main approaches to reducing hallucinations in large language models?",
+      "ok": true,
+      "total_s": 19.58803415500006,
+      "agent_s": {
+        "planner": 1.884136638999962,
+        "researcher": 4.847903353999982,
+        "analyst": 4.630568798000013,
+        "writer": 7.141965686000049,
+        "critic": 1.0759688000000551
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 9,
+      "citations": 9,
+      "verified_citations": 0,
+      "tokens": null
+    },
+    {
+      "query": "How does retrieval-augmented generation compare with fine-tuning for domain adaptation?",
+      "ok": true,
+      "total_s": 21.904511014000036,
+      "agent_s": {
+        "planner": 1.449231325000028,
+        "researcher": 6.442437469999959,
+        "analyst": 1.8450497090000226,
+        "writer": 10.666666075999956,
+        "critic": 1.49558757900013
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 9,
+      "citations": 15,
+      "verified_citations": 0,
+      "tokens": null
+    },
+    {
+      "query": "What are the current trade-offs between solid-state and lithium-ion batteries for electric vehicles?",
+      "ok": true,
+      "total_s": 21.420595196999784,
+      "agent_s": {
+        "planner": 1.335406809999995,
+        "researcher": 9.234866601999784,
+        "analyst": 1.7031213030002164,
+        "writer": 8.147422394999921,
+        "critic": 0.9949294099999406
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 10,
+      "citations": 9,
+      "verified_citations": 0,
+      "tokens": null
+    },
+    {
+      "query": "How is CRISPR gene editing being used in clinical trials?",
+      "ok": true,
+      "total_s": 21.64334843000006,
+      "agent_s": {
+        "planner": 1.418993594000085,
+        "researcher": 4.496129500000052,
+        "analyst": 1.6881599089999781,
+        "writer": 12.922933114999978,
+        "critic": 1.1111149509999905
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 9,
+      "citations": 14,
+      "verified_citations": 14,
+      "tokens": null
+    },
+    {
+      "query": "What evidence exists for the effectiveness of four-day work weeks?",
+      "ok": true,
+      "total_s": 31.52100098799997,
+      "agent_s": {
+        "planner": 12.351772192999988,
+        "researcher": 6.471579092999946,
+        "analyst": 1.6618459150001854,
+        "writer": 10.152621451999948,
+        "critic": 0.8782039239999904
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 9,
+      "citations": 10,
+      "verified_citations": 0,
+      "tokens": null
+    },
+    {
+      "query": "How do vector databases index embeddings for approximate nearest neighbour search?",
+      "ok": true,
+      "total_s": 20.205071002000068,
+      "agent_s": {
+        "planner": 1.6200497200002246,
+        "researcher": 4.0602877289998105,
+        "analyst": 2.1943303440000363,
+        "writer": 10.864779851000094,
+        "critic": 1.4619459670000197
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 10,
+      "citations": 13,
+      "verified_citations": 13,
+      "tokens": null
+    },
+    {
+      "query": "What are the main security risks of deploying LLM agents with tool access?",
+      "ok": true,
+      "total_s": 21.829082822000146,
+      "agent_s": {
+        "planner": 1.496476193000035,
+        "researcher": 6.650172440000006,
+        "analyst": 3.928683962999912,
+        "writer": 8.76842177200001,
+        "critic": 0.981941936000112
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 10,
+      "citations": 9,
+      "verified_citations": 0,
+      "tokens": null
+    },
+    {
+      "query": "How has India's UPI payment system grown, and what drove its adoption?",
+      "ok": true,
+      "total_s": 24.625747793999835,
+      "agent_s": {
+        "planner": 1.2680727469999056,
+        "researcher": 4.9653789000001325,
+        "analyst": 1.5405085479999343,
+        "writer": 15.906815510999877,
+        "critic": 0.9410893220001526
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 10,
+      "citations": 10,
+      "verified_citations": 10,
+      "tokens": null
+    },
+    {
+      "query": "What are non-invasive neuromodulation approaches being studied for Alzheimer's disease?",
+      "ok": true,
+      "total_s": 31.84794348399987,
+      "agent_s": {
+        "planner": 1.5608768399999917,
+        "researcher": 5.179654623999795,
+        "analyst": 6.130430828000044,
+        "writer": 17.610129939000217,
+        "critic": 1.3632637869998234
+      },
+      "revisions": 1,
+      "approved_first_draft": false,
+      "quality_score": 9,
+      "citations": 18,
+      "verified_citations": 18,
+      "tokens": null
+    },
+    {
+      "query": "What are the key differences between LangGraph, CrewAI and AutoGen for multi-agent systems?",
+      "ok": true,
+      "total_s": 19.555189271000017,
+      "agent_s": {
+        "planner": 4.5391697390000445,
+        "researcher": 4.658938766999881,
+        "analyst": 1.5723522380001214,
+        "writer": 7.727335054999912,
+        "critic": 1.0529852740000933
+      },
+      "revisions": 0,
+      "approved_first_draft": true,
+      "quality_score": 9,
+      "citations": 13,
+      "verified_citations": 0,
+      "tokens": null
+    }
+  ]
+}

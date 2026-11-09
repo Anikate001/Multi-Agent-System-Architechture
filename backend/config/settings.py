@@ -58,7 +58,7 @@ class Settings(BaseSettings):
 
     # --- LLM Defaults --------------------------------------------------------
     model_name: str = Field(
-        default="gemini-2.0-flash",
+        default="gemini-3.5-flash-lite",
         description="Default Gemini model to use",
     )
     temperature: float = Field(
