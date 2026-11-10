@@ -56,6 +56,7 @@ async def startup_event():
     await db.init_db()
     cache = CacheService(settings.redis_url)
     await cache.connect()
+    app.state.settings = settings
     app.state.db = db
     app.state.cache = cache
     app.state.orchestrator = ResearchOrchestrator(settings, db, cache)

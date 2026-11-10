@@ -83,6 +83,12 @@ class TaskStatusResponse(BaseModel):
         default=None,
         description="Final report (present only when status == 'completed')",
     )
+    agents: dict[str, dict] = Field(
+        default_factory=dict,
+        description="Per-agent status, tokens, latency and cost for the dashboard",
+    )
+    revision_count: int = Field(default=0, ge=0, description="Writer rewrites after the first draft")
+    quality_scores: list[float] = Field(default_factory=list, description="Critic scores so far")
 
 
 class HealthResponse(BaseModel):

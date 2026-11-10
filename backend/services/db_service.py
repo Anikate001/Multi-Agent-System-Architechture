@@ -106,12 +106,13 @@ class DatabaseService:
     """Async database service for task, report, and action persistence."""
 
     def __init__(self, database_url: str) -> None:
+        # SQLite (used by the single-container demo) doesn't take pool sizing options
+        pool_args = {} if database_url.startswith("sqlite") else {"pool_size": 10, "max_overflow": 20}
         self._engine: AsyncEngine = create_async_engine(
             database_url,
             echo=False,
-            pool_size=10,
-            max_overflow=20,
             pool_pre_ping=True,
+            **pool_args,
         )
         self._session_factory = async_sessionmaker(
             self._engine,
