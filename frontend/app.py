@@ -14,16 +14,17 @@ import streamlit as st
 # Components build HTML in indented, multi-line strings. Markdown treats indented lines
 # after a blank line as a code block, so fragments like "</div>" showed up as text.
 # Flatten raw-HTML blocks before rendering; ordinary Markdown is left untouched.
-_st_markdown = st.markdown
+# Streamlit re-runs this script on every interaction, so patch only once.
+if not getattr(st.markdown, "_nexus_html_safe", False):
+    _st_markdown = st.markdown
 
+    def _markdown_html_safe(body, *args, **kwargs):
+        if kwargs.get("unsafe_allow_html") and isinstance(body, str) and body.lstrip().startswith("<"):
+            body = "\n".join(line.strip() for line in body.splitlines() if line.strip())
+        return _st_markdown(body, *args, **kwargs)
 
-def _markdown_html_safe(body, *args, **kwargs):
-    if kwargs.get("unsafe_allow_html") and isinstance(body, str) and body.lstrip().startswith("<"):
-        body = "\n".join(line.strip() for line in body.splitlines() if line.strip())
-    return _st_markdown(body, *args, **kwargs)
-
-
-st.markdown = _markdown_html_safe
+    _markdown_html_safe._nexus_html_safe = True
+    st.markdown = _markdown_html_safe
 
 # ── local imports ────────────────────────────────────────────────────
 from utils.api_client import NexusAPIClient

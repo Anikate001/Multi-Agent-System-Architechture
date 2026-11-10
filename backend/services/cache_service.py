@@ -28,7 +28,17 @@ class CacheService:
     # ------------------------------------------------------------------
 
     async def connect(self) -> None:
-        """Establish the Redis connection pool."""
+        """Establish the Redis connection pool.
+
+        ``memory://`` uses an in-process Redis (fakeredis) for single-process demos
+        such as Streamlit Community Cloud, where no Redis server is available.
+        """
+        if self._redis is None and self._redis_url.startswith("memory://"):
+            from fakeredis import FakeAsyncRedis
+
+            self._redis = FakeAsyncRedis(decode_responses=True)
+            logger.info("cache_connected", redis_url="memory://")
+            return
         if self._redis is None:
             self._redis = Redis.from_url(
                 self._redis_url,
