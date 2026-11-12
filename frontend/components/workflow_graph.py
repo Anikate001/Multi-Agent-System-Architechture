@@ -29,9 +29,9 @@ _EDGES = [
 def _status_color(status: str) -> str:
     return {
         "pending":   "#444",
-        "active":    "#6C63FF",
-        "completed": "#00E676",
-        "failed":    "#FF5252",
+        "active":    "#00F0FF",
+        "completed": "#39FF14",
+        "failed":    "#FF3355",
     }.get(status, "#444")
 
 
@@ -57,8 +57,8 @@ def render_workflow_graph(status_data: dict) -> None:
     agents_info: dict = status_data.get("agents", {})
 
     st.markdown(
-        "<p style='font-family:Inter,sans-serif;font-weight:700;"
-        "font-size:1.1rem;color:#E0E0E0;margin-bottom:0.5rem;'>"
+        "<p style='font-family:VT323,monospace;font-weight:700;"
+        "font-size:1.1rem;color:#F2E9FF;margin-bottom:0.5rem;'>"
         "🔀 Workflow Graph</p>",
         unsafe_allow_html=True,
     )
@@ -81,8 +81,8 @@ def render_workflow_graph(status_data: dict) -> None:
         is_revision = (src_id == "critic" and dst_id == "writer")
 
         edge_color = (
-            "#FF9800" if is_revision and is_hot
-            else "#6C63FF" if is_hot
+            "#FFE600" if is_revision and is_hot
+            else "#00F0FF" if is_hot
             else "rgba(255,255,255,0.08)"
         )
         edge_width = 3 if is_hot else 1.5
@@ -161,7 +161,7 @@ def render_workflow_graph(status_data: dict) -> None:
         ),
         text=node_labels,
         textposition="bottom center",
-        textfont=dict(family="Inter, sans-serif", size=12, color="#E0E0E0"),
+        textfont=dict(family="VT323, monospace", size=12, color="#F2E9FF"),
         hovertext=hover_texts,
         hoverinfo="text",
         showlegend=False,
@@ -185,9 +185,9 @@ def render_workflow_graph(status_data: dict) -> None:
         ),
         annotations=annotations,
         hoverlabel=dict(
-            bgcolor="#1A1F2E",
-            bordercolor="#6C63FF",
-            font=dict(family="Inter, sans-serif", size=12, color="#E0E0E0"),
+            bgcolor="#160A33",
+            bordercolor="#00F0FF",
+            font=dict(family="VT323, monospace", size=12, color="#F2E9FF"),
         ),
     )
 
@@ -203,23 +203,23 @@ def render_workflow_graph(status_data: dict) -> None:
                 align-items: center;
                 gap: 0.5rem;
                 padding: 0.5rem 0.9rem;
-                background: rgba(255,152,0,0.08);
-                border: 1px solid rgba(255,152,0,0.25);
-                border-radius: 10px;
+                background: rgba(255,230,0,0.08);
+                border: 1px solid rgba(255,230,0,0.25);
+                border-radius:0;
                 margin-top: -0.5rem;
                 margin-bottom: 1rem;
             ">
                 <span style="font-size:1.1rem;">🔄</span>
                 <span style="
-                    font-family: 'Inter', sans-serif;
+                    font-family: 'VT323', monospace;
                     font-size: 0.8rem;
-                    color: #FF9800;
+                    color: #FFE600;
                     font-weight: 600;
                 ">Revision Loop × {revision_count}</span>
                 <span style="
-                    font-family: 'Inter', sans-serif;
+                    font-family: 'VT323', monospace;
                     font-size: 0.7rem;
-                    color: rgba(255,152,0,0.5);
+                    color: rgba(255,230,0,0.5);
                 ">Critic sent the report back to Writer for refinement</span>
             </div>
             """,

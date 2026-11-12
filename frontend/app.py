@@ -28,6 +28,7 @@ if not getattr(st.markdown, "_nexus_html_safe", False):
 
 # ── local imports ────────────────────────────────────────────────────
 from utils.api_client import NexusAPIClient
+from retro_ui import inject_theme, energy_can_egg
 from components.header import render_header
 from components.research_input import render_research_input
 from components.agent_tracker import render_agent_tracker
@@ -40,9 +41,9 @@ from components.approval_panel import render_approval_panel
 # ── page config ──────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Nexus Research Platform",
-    page_icon="🔬",
+    page_icon="🕹️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 
 # =====================================================================
@@ -52,15 +53,15 @@ st.markdown(
     """
     <style>
         /* ── Google Font ─────────────────────────────────────────── */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
 
         /* ── base overrides ──────────────────────────────────────── */
         html, body, [class*="css"] {
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'VT323', monospace !important;
         }
 
         .stApp {
-            background: #0E1117;
+            background: #0B0420;
         }
 
         /* ── subtle animated background mesh ─────────────────────── */
@@ -69,7 +70,7 @@ st.markdown(
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background:
-                radial-gradient(ellipse at 15% 20%, rgba(108,99,255,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 15% 20%, rgba(0,240,255,0.04) 0%, transparent 50%),
                 radial-gradient(ellipse at 85% 80%, rgba(99,179,255,0.03) 0%, transparent 50%),
                 radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.02) 0%, transparent 60%);
             animation: bg-drift 30s ease-in-out infinite alternate;
@@ -87,11 +88,11 @@ st.markdown(
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb {
-            background: rgba(108,99,255,0.25);
-            border-radius: 3px;
+            background: rgba(0,240,255,0.25);
+            border-radius:0;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(108,99,255,0.45);
+            background: rgba(0,240,255,0.45);
         }
 
         /* ── glassmorphism cards ──────────────────────────────────── */
@@ -99,10 +100,10 @@ st.markdown(
             background: linear-gradient(
                 145deg,
                 rgba(26, 31, 46, 0.75) 0%,
-                rgba(14, 17, 23, 0.88) 100%
+                rgba(11,4,32, 0.88) 100%
             );
-            border: 1px solid rgba(108, 99, 255, 0.12);
-            border-radius: 16px;
+            border: 1px solid rgba(0,240,255, 0.12);
+            border-radius:0;
             padding: 1.5rem;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -115,112 +116,112 @@ st.markdown(
         /* ── gradient primary button ─────────────────────────────── */
         .stButton > button[kind="primary"],
         .stButton > button[data-testid="baseButton-primary"] {
-            background: linear-gradient(135deg, #6C63FF 0%, #5A4FCF 100%) !important;
+            background: linear-gradient(135deg, #00F0FF 0%, #B26BFF 100%) !important;
             color: #fff !important;
             border: none !important;
-            border-radius: 12px !important;
-            font-family: 'Inter', sans-serif !important;
+            border-radius:0 !important;
+            font-family: 'VT323', monospace !important;
             font-weight: 700 !important;
             letter-spacing: 1px !important;
-            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3) !important;
+            box-shadow: 0 4px 20px rgba(0,240,255, 0.3) !important;
             transition: all 0.3s ease !important;
         }
 
         .stButton > button[kind="primary"]:hover,
         .stButton > button[data-testid="baseButton-primary"]:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.5) !important;
+            box-shadow: 0 8px 30px rgba(0,240,255, 0.5) !important;
         }
 
         /* ── secondary buttons ───────────────────────────────────── */
         .stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]) {
             background: rgba(255,255,255,0.04) !important;
             border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 10px !important;
-            color: #E0E0E0 !important;
-            font-family: 'Inter', sans-serif !important;
+            border-radius:0 !important;
+            color: #F2E9FF !important;
+            font-family: 'VT323', monospace !important;
             transition: all 0.25s ease !important;
         }
 
         .stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]):hover {
-            border-color: rgba(108,99,255,0.4) !important;
-            background: rgba(108,99,255,0.08) !important;
+            border-color: rgba(0,240,255,0.4) !important;
+            background: rgba(0,240,255,0.08) !important;
         }
 
         /* ── download buttons ────────────────────────────────────── */
         .stDownloadButton > button {
             background: rgba(255,255,255,0.04) !important;
-            border: 1px solid rgba(108,99,255,0.2) !important;
-            border-radius: 10px !important;
-            color: #E0E0E0 !important;
-            font-family: 'Inter', sans-serif !important;
+            border: 1px solid rgba(0,240,255,0.2) !important;
+            border-radius:0 !important;
+            color: #F2E9FF !important;
+            font-family: 'VT323', monospace !important;
             font-weight: 600 !important;
             transition: all 0.25s ease !important;
         }
 
         .stDownloadButton > button:hover {
-            background: rgba(108,99,255,0.1) !important;
-            border-color: #6C63FF !important;
+            background: rgba(0,240,255,0.1) !important;
+            border-color: #00F0FF !important;
         }
 
         /* ── text inputs / text areas ────────────────────────────── */
         .stTextArea textarea, .stTextInput input {
             background: rgba(255,255,255,0.03) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
-            border-radius: 12px !important;
-            color: #E0E0E0 !important;
-            font-family: 'Inter', sans-serif !important;
+            border-radius:0 !important;
+            color: #F2E9FF !important;
+            font-family: 'VT323', monospace !important;
             font-size: 0.9rem !important;
         }
 
         .stTextArea textarea:focus, .stTextInput input:focus {
-            border-color: #6C63FF !important;
-            box-shadow: 0 0 0 2px rgba(108,99,255,0.15) !important;
+            border-color: #00F0FF !important;
+            box-shadow: 0 0 0 2px rgba(0,240,255,0.15) !important;
         }
 
         /* ── sliders ─────────────────────────────────────────────── */
         .stSlider [data-testid="stThumbValue"] {
-            color: #6C63FF !important;
+            color: #00F0FF !important;
             font-weight: 700 !important;
         }
 
         /* ── toggle ──────────────────────────────────────────────── */
-        .stToggle label { font-family: 'Inter', sans-serif !important; }
+        .stToggle label { font-family: 'VT323', monospace !important; }
 
         /* ── expanders ───────────────────────────────────────────── */
         .streamlit-expanderHeader {
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'VT323', monospace !important;
             font-weight: 600 !important;
             background: rgba(255,255,255,0.02) !important;
-            border-radius: 10px !important;
+            border-radius:0 !important;
         }
 
         /* ── sidebar ─────────────────────────────────────────────── */
         section[data-testid="stSidebar"] {
             background: linear-gradient(
                 180deg,
-                rgba(14, 17, 23, 0.98) 0%,
+                rgba(11,4,32, 0.98) 0%,
                 rgba(26, 31, 46, 0.95) 100%
             ) !important;
-            border-right: 1px solid rgba(108,99,255,0.08) !important;
+            border-right: 1px solid rgba(0,240,255,0.08) !important;
         }
 
         section[data-testid="stSidebar"] .stMarkdown {
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'VT323', monospace !important;
         }
 
         /* ── metrics ─────────────────────────────────────────────── */
         [data-testid="stMetric"] {
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px;
+            border-radius:0;
             padding: 0.8rem !important;
         }
 
         [data-testid="stMetricValue"] {
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'VT323', monospace !important;
             font-weight: 800 !important;
-            color: #6C63FF !important;
+            color: #00F0FF !important;
         }
 
         /* ── radio pills ─────────────────────────────────────────── */
@@ -228,15 +229,15 @@ st.markdown(
         .stRadio > div > label {
             background: rgba(255,255,255,0.03) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
-            border-radius: 10px !important;
+            border-radius:0 !important;
             padding: 0.5rem 1rem !important;
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'VT323', monospace !important;
             transition: all 0.2s ease !important;
         }
         .stRadio > div > label[data-checked="true"],
         .stRadio > div > label:has(input:checked) {
-            border-color: #6C63FF !important;
-            background: rgba(108,99,255,0.1) !important;
+            border-color: #00F0FF !important;
+            background: rgba(0,240,255,0.1) !important;
         }
 
         /* ── pulse keyframe (reusable) ───────────────────────────── */
@@ -253,6 +254,23 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# Retro arcade theme: loads after the base CSS so it wins.
+inject_theme()
+with st.sidebar:
+    st.markdown(
+        """
+        <div class="px-title neon-m" style="font-size:0.8rem;margin:0.4rem 0 0.8rem">HOW TO PLAY</div>
+        <div style="font-size:1.25rem;line-height:1.5">
+        <span class="neon-y">1.</span> Type your research quest<br/>
+        <span class="neon-y">2.</span> Pick a difficulty<br/>
+        <span class="neon-y">3.</span> Press START and watch your party<br/>
+        <span class="neon-y">4.</span> Beat the Critic, claim your report
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    energy_can_egg(st)
 
 
 # =====================================================================
@@ -391,13 +409,13 @@ with main_col:
                 margin-bottom:1rem;
             ">
                 <div style="
-                    width:10px; height:10px; border-radius:50%;
-                    background:#6C63FF;
+                    width:10px; height:10px; border-radius:0;
+                    background:#00F0FF;
                     animation: soft-pulse 1.5s ease-in-out infinite;
                 "></div>
                 <span style="
-                    font-family:'Inter',sans-serif; font-size:0.85rem;
-                    font-weight:600; color:#6C63FF;
+                    font-family:'VT323', monospace; font-size:0.85rem;
+                    font-weight:600; color:#00F0FF;
                 ">Research in progress…</span>
             </div>
             """,
@@ -408,7 +426,7 @@ with main_col:
         render_workflow_graph(status_data)
 
         # new-task button during run
-        if st.button("🛑  Cancel & Start New Research", key="cancel_btn"):
+        if st.button("✖  Abort Quest", key="cancel_btn"):
             _reset_session()
             st.rerun()
 
@@ -422,14 +440,14 @@ with main_col:
             <div style="
                 display:flex; align-items:center; gap:0.6rem;
                 padding:0.7rem 1rem; margin-bottom:1rem;
-                background:rgba(255,152,0,0.08);
-                border:1px solid rgba(255,152,0,0.25);
-                border-radius:12px;
+                background:rgba(255,230,0,0.08);
+                border:1px solid rgba(255,230,0,0.25);
+                border-radius:0;
             ">
                 <span style="font-size:1.2rem;">⏸️</span>
                 <span style="
-                    font-family:'Inter',sans-serif; font-size:0.85rem;
-                    font-weight:600; color:#FF9800;
+                    font-family:'VT323', monospace; font-size:0.85rem;
+                    font-weight:600; color:#FFE600;
                 ">Awaiting your approval before finalising the report</span>
             </div>
             """,
@@ -466,14 +484,14 @@ with main_col:
             <div style="
                 display:flex; align-items:center; gap:0.6rem;
                 padding:0.7rem 1rem; margin-bottom:1rem;
-                background:rgba(0,230,118,0.06);
-                border:1px solid rgba(0,230,118,0.2);
-                border-radius:12px;
+                background:rgba(57,255,20,0.06);
+                border:1px solid rgba(57,255,20,0.2);
+                border-radius:0;
             ">
                 <span style="font-size:1.2rem;">✅</span>
                 <span style="
-                    font-family:'Inter',sans-serif; font-size:0.85rem;
-                    font-weight:600; color:#00E676;
+                    font-family:'VT323', monospace; font-size:0.85rem;
+                    font-weight:600; color:#39FF14;
                 ">Research complete — report ready</span>
             </div>
             """,
@@ -488,7 +506,7 @@ with main_col:
                 render_citations(citations, sources)
 
         st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-        if st.button("🔬  Start New Research", type="primary", key="new_research_btn"):
+        if st.button("▶  New Quest", type="primary", key="new_research_btn"):
             _reset_session()
             st.rerun()
 
@@ -501,17 +519,17 @@ with main_col:
             f"""
             <div style="
                 padding:1.5rem; margin-bottom:1rem;
-                background:rgba(255,82,82,0.06);
-                border:1px solid rgba(255,82,82,0.2);
-                border-radius:14px;
+                background:rgba(255,51,85,0.06);
+                border:1px solid rgba(255,51,85,0.2);
+                border-radius:0;
             ">
                 <div style="
-                    font-family:'Inter',sans-serif; font-size:1.1rem;
-                    font-weight:700; color:#FF5252; margin-bottom:0.4rem;
+                    font-family:'VT323', monospace; font-size:1.1rem;
+                    font-weight:700; color:#FF3355; margin-bottom:0.4rem;
                 ">💥 Research Failed</div>
                 <div style="
-                    font-family:'Inter',sans-serif; font-size:0.85rem;
-                    color:rgba(224,224,224,0.6); line-height:1.6;
+                    font-family:'VT323', monospace; font-size:0.85rem;
+                    color:rgba(242,233,255,0.6); line-height:1.6;
                 ">{error_msg}</div>
             </div>
             """,
@@ -560,14 +578,14 @@ with sidebar_col:
     st.markdown(
         """
         <p style="
-            font-family:'Inter',sans-serif; font-weight:700; font-size:1rem;
-            color:#E0E0E0; margin-top:1rem; margin-bottom:0.6rem;
+            font-family:'VT323', monospace; font-weight:700; font-size:1rem;
+            color:#F2E9FF; margin-top:1rem; margin-bottom:0.6rem;
         ">🏥 System Health</p>
         """,
         unsafe_allow_html=True,
     )
 
-    health_color = "#00E676" if is_connected else "#FF5252"
+    health_color = "#39FF14" if is_connected else "#FF3355"
     health_status = health.get("status", "unreachable")
     health_latency = health.get("latency_ms")
 
@@ -578,20 +596,20 @@ with sidebar_col:
             padding:0.6rem 0.9rem;
             background:rgba(255,255,255,0.02);
             border:1px solid rgba(255,255,255,0.06);
-            border-radius:10px;
+            border-radius:0;
             margin-bottom:0.5rem;
         ">
             <div style="
-                width:8px; height:8px; border-radius:50%;
+                width:8px; height:8px; border-radius:0;
                 background:{health_color};
                 box-shadow:0 0 8px {health_color}80;
             "></div>
             <span style="
-                font-family:'Inter',sans-serif; font-size:0.8rem;
+                font-family:'VT323', monospace; font-size:0.8rem;
                 font-weight:600; color:{health_color};
                 text-transform:uppercase; letter-spacing:1px;
             ">{health_status}</span>
-            {'<span style="font-family:Inter,sans-serif;font-size:0.7rem;color:rgba(224,224,224,0.35);margin-left:auto;">' + str(health_latency) + 'ms</span>' if health_latency else ''}
+            {'<span style="font-family:VT323,monospace;font-size:0.7rem;color:rgba(242,233,255,0.35);margin-left:auto;">' + str(health_latency) + 'ms</span>' if health_latency else ''}
         </div>
         """,
         unsafe_allow_html=True,
@@ -603,8 +621,8 @@ with sidebar_col:
         st.markdown(
             """
             <p style="
-                font-family:'Inter',sans-serif; font-weight:700; font-size:1rem;
-                color:#E0E0E0; margin-top:1.2rem; margin-bottom:0.6rem;
+                font-family:'VT323', monospace; font-weight:700; font-size:1rem;
+                color:#F2E9FF; margin-top:1.2rem; margin-bottom:0.6rem;
             ">🕘 Recent Tasks</p>
             """,
             unsafe_allow_html=True,
@@ -618,15 +636,15 @@ with sidebar_col:
                     padding:0.55rem 0.8rem;
                     background:rgba(255,255,255,0.02);
                     border:1px solid rgba(255,255,255,0.04);
-                    border-radius:8px;
+                    border-radius:0;
                     margin-bottom:0.4rem;
                     cursor:pointer;
                     transition:border-color 0.2s;
-                " onmouseover="this.style.borderColor='rgba(108,99,255,0.3)'"
+                " onmouseover="this.style.borderColor='rgba(0,240,255,0.3)'"
                    onmouseout="this.style.borderColor='rgba(255,255,255,0.04)'">
                     <div style="
-                        font-family:'Inter',sans-serif; font-size:0.78rem;
-                        color:rgba(224,224,224,0.65); white-space:nowrap;
+                        font-family:'VT323', monospace; font-size:0.78rem;
+                        color:rgba(242,233,255,0.65); white-space:nowrap;
                         overflow:hidden; text-overflow:ellipsis;
                     ">{task.get('query', '')}</div>
                     <div style="
@@ -634,12 +652,12 @@ with sidebar_col:
                         margin-top:0.2rem;
                     ">
                         <span style="
-                            font-family:'Inter',monospace; font-size:0.62rem;
-                            color:rgba(108,99,255,0.5);
+                            font-family:'VT323', monospace; font-size:0.62rem;
+                            color:rgba(0,240,255,0.5);
                         ">{tid_short}</span>
                         <span style="
-                            font-family:'Inter',sans-serif; font-size:0.62rem;
-                            color:rgba(224,224,224,0.25);
+                            font-family:'VT323', monospace; font-size:0.62rem;
+                            color:rgba(242,233,255,0.25);
                         ">{task.get('ts', '')}</span>
                     </div>
                 </div>
@@ -664,8 +682,8 @@ with sidebar_col:
         """
         <div style="
             text-align:center; padding:2rem 0 1rem 0;
-            font-family:'Inter',sans-serif; font-size:0.65rem;
-            color:rgba(224,224,224,0.15); letter-spacing:1px;
+            font-family:'VT323', monospace; font-size:0.65rem;
+            color:rgba(242,233,255,0.15); letter-spacing:1px;
         ">
             NEXUS RESEARCH PLATFORM · v1.0
         </div>

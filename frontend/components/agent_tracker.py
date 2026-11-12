@@ -4,36 +4,40 @@ Renders the agent pipeline with live status, reasoning traces, and metrics.
 """
 
 import streamlit as st
+
+from retro_ui import pixel_svg, xp_bar
+
+_XP = {"pending": 0.0, "active": 0.6, "completed": 1.0, "failed": 1.0}
 from typing import Any
 
 
 # ── Agent pipeline definition ────────────────────────────────────────
 PIPELINE_AGENTS = [
-    {"key": "planner", "label": "Planner", "icon": "📋", "desc": "Decompose query into sub-tasks"},
-    {"key": "researcher", "label": "Researcher", "icon": "🔎", "desc": "Gather sources & evidence"},
-    {"key": "analyst", "label": "Analyst", "icon": "📊", "desc": "Synthesise & cross-reference"},
-    {"key": "writer", "label": "Writer", "icon": "✍️", "desc": "Draft the research report"},
-    {"key": "critic", "label": "Critic", "icon": "🧪", "desc": "Review, score & iterate"},
+    {"key": "planner", "label": "Planner", "icon": "📋", "sprite": "star", "cls": "STRATEGIST", "desc": "Decompose query into sub-tasks"},
+    {"key": "researcher", "label": "Researcher", "icon": "🔎", "sprite": "rocket", "cls": "SCOUT", "desc": "Gather sources & evidence"},
+    {"key": "analyst", "label": "Analyst", "icon": "📊", "sprite": "cat", "cls": "SAGE", "desc": "Synthesise & cross-reference"},
+    {"key": "writer", "label": "Writer", "icon": "✍️", "sprite": "heart", "cls": "BARD", "desc": "Draft the research report"},
+    {"key": "critic", "label": "Critic", "icon": "🧪", "sprite": "joystick", "cls": "BOSS", "desc": "Review, score & iterate"},
 ]
 
 
 def _status_style(status: str) -> dict:
     """Return colour & animation metadata for a given status."""
     styles = {
-        "pending":   {"bg": "rgba(255,255,255,0.03)", "border": "rgba(255,255,255,0.08)", "text": "#666", "glow": "none", "anim": ""},
-        "active":    {"bg": "rgba(108,99,255,0.10)", "border": "#6C63FF", "text": "#6C63FF", "glow": "0 0 24px rgba(108,99,255,0.35)", "anim": "agent-pulse 2s ease-in-out infinite"},
-        "completed": {"bg": "rgba(0,230,118,0.08)", "border": "rgba(0,230,118,0.5)", "text": "#00E676", "glow": "0 0 12px rgba(0,230,118,0.2)", "anim": ""},
-        "failed":    {"bg": "rgba(255,82,82,0.08)", "border": "rgba(255,82,82,0.5)", "text": "#FF5252", "glow": "0 0 12px rgba(255,82,82,0.2)", "anim": ""},
+        "pending":   {"bg": "rgba(255,255,255,0.03)", "border": "rgba(255,255,255,0.08)", "text": "#B8ADD6", "glow": "none", "anim": ""},
+        "active":    {"bg": "rgba(0,240,255,0.10)", "border": "#00F0FF", "text": "#00F0FF", "glow": "0 0 24px rgba(0,240,255,0.35)", "anim": "agent-pulse 2s ease-in-out infinite"},
+        "completed": {"bg": "rgba(57,255,20,0.08)", "border": "rgba(57,255,20,0.5)", "text": "#39FF14", "glow": "0 0 12px rgba(57,255,20,0.2)", "anim": ""},
+        "failed":    {"bg": "rgba(255,51,85,0.08)", "border": "rgba(255,51,85,0.5)", "text": "#FF3355", "glow": "0 0 12px rgba(255,51,85,0.2)", "anim": ""},
     }
     return styles.get(status, styles["pending"])
 
 
 def _status_badge(status: str) -> str:
     labels = {
-        "pending": "PENDING",
-        "active": "RUNNING",
-        "completed": "DONE",
-        "failed": "FAILED",
+        "pending": "WAITING",
+        "active": "IN BATTLE",
+        "completed": "LEVEL UP",
+        "failed": "K.O.",
     }
     return labels.get(status, status.upper())
 
@@ -60,8 +64,8 @@ def render_agent_tracker(status_data: dict) -> None:
         """
         <style>
             @keyframes agent-pulse {
-                0%, 100% { box-shadow: 0 0 8px rgba(108,99,255,0.2); }
-                50%      { box-shadow: 0 0 28px rgba(108,99,255,0.55); }
+                0%, 100% { box-shadow: 0 0 8px rgba(0,240,255,0.2); }
+                50%      { box-shadow: 0 0 28px rgba(0,240,255,0.55); }
             }
             @keyframes spin-icon {
                 0%   { transform: rotate(0deg); }
@@ -69,10 +73,10 @@ def render_agent_tracker(status_data: dict) -> None:
             }
 
             .tracker-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 1.1rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
                 margin-bottom: 1rem;
                 display: flex;
                 align-items: center;
@@ -92,7 +96,7 @@ def render_agent_tracker(status_data: dict) -> None:
                 flex: 1;
                 min-width: 140px;
                 padding: 1.1rem 0.9rem;
-                border-radius: 14px;
+                border-radius:0;
                 text-align: center;
                 position: relative;
                 transition: all 0.35s ease;
@@ -108,33 +112,34 @@ def render_agent_tracker(status_data: dict) -> None:
                 font-size: 1.2rem;
             }
 
-            .agent-connector.done { color: #00E676; }
-            .agent-connector.active-conn { color: #6C63FF; }
+            .agent-connector.done { color: #39FF14; }
+            .agent-connector.active-conn { color: #00F0FF; }
 
-            .agent-icon { font-size: 1.6rem; margin-bottom: 0.35rem; }
+            .agent-icon { height: 48px; display:flex; align-items:flex-end; justify-content:center; margin-bottom: 0.35rem; }
+            .agent-class { font-family:'Press Start 2P',monospace; font-size:0.55rem; color:#FFE600; margin:4px 0 6px; letter-spacing:1px; }
 
             .agent-label {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 600;
                 font-size: 0.82rem;
                 margin-bottom: 0.15rem;
             }
 
             .agent-desc {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.65rem;
-                color: rgba(224,224,224,0.35);
+                color: rgba(242,233,255,0.35);
                 margin-bottom: 0.5rem;
             }
 
             .agent-badge {
                 display: inline-block;
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.6rem;
                 font-weight: 700;
                 letter-spacing: 1px;
                 padding: 0.2rem 0.55rem;
-                border-radius: 6px;
+                border-radius:0;
                 text-transform: uppercase;
             }
 
@@ -146,14 +151,14 @@ def render_agent_tracker(status_data: dict) -> None:
             }
 
             .agent-metric-item {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.62rem;
-                color: rgba(224,224,224,0.4);
+                color: rgba(242,233,255,0.4);
             }
 
             .agent-metric-val {
                 font-weight: 700;
-                color: rgba(224,224,224,0.65);
+                color: rgba(242,233,255,0.65);
             }
         </style>
         """,
@@ -161,7 +166,7 @@ def render_agent_tracker(status_data: dict) -> None:
     )
 
     st.markdown(
-        '<div class="tracker-title">🧬 Agent Pipeline</div>',
+        '<div class="tracker-title">&#9654; PARTY STATUS</div>',
         unsafe_allow_html=True,
     )
 
@@ -196,8 +201,10 @@ def render_agent_tracker(status_data: dict) -> None:
         html_parts.append(
             f"""
             <div class="agent-node" style="{node_style}">
-                <div class="agent-icon">{agent_def['icon']}</div>
+                <div class="agent-icon">{pixel_svg(agent_def['sprite'], 4)}</div>
                 <div class="agent-label" style="color:{s['text']}">{agent_def['label']}</div>
+                <div class="agent-class">LV.{idx + 1} {agent_def['cls']}</div>
+                {xp_bar(_XP.get(status, 0.0), s['text'] if status != 'pending' else '#5B3FB5')}
                 <div class="agent-desc">{agent_def['desc']}</div>
                 <span class="agent-badge" style="{badge_style}">{_status_badge(status)}</span>
                 <div class="agent-metrics">
@@ -235,8 +242,8 @@ def render_agent_tracker(status_data: dict) -> None:
 
     if has_any_reasoning:
         st.markdown(
-            "<p style='font-family:Inter,sans-serif;font-size:0.85rem;"
-            "font-weight:600;color:#E0E0E0;margin-bottom:0.4rem;'>"
+            "<p style='font-family:VT323,monospace;font-size:0.85rem;"
+            "font-weight:600;color:#F2E9FF;margin-bottom:0.4rem;'>"
             "💭 Agent Reasoning Traces</p>",
             unsafe_allow_html=True,
         )
@@ -256,13 +263,13 @@ def render_agent_tracker(status_data: dict) -> None:
                 st.markdown(
                     f"""
                     <div style="
-                        font-family: 'Inter', monospace;
+                        font-family: 'VT323', monospace;
                         font-size: 0.78rem;
                         line-height: 1.6;
-                        color: rgba(224,224,224,0.7);
+                        color: rgba(242,233,255,0.7);
                         padding: 0.8rem;
                         background: rgba(0,0,0,0.2);
-                        border-radius: 8px;
+                        border-radius:0;
                         border-left: 3px solid {s['border']};
                         max-height: 300px;
                         overflow-y: auto;

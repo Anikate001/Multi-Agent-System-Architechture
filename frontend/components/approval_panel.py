@@ -42,41 +42,41 @@ def render_approval_panel(
 
     # ── quality colour ──────────────────────────────────────────────
     if quality >= 8:
-        q_color, q_label = "#00E676", "Excellent"
+        q_color, q_label = "#39FF14", "Excellent"
     elif quality >= 6:
-        q_color, q_label = "#FF9800", "Good"
+        q_color, q_label = "#FFE600", "Good"
     elif quality >= 4:
-        q_color, q_label = "#FFC107", "Fair"
+        q_color, q_label = "#FFE600", "Fair"
     else:
-        q_color, q_label = "#FF5252", "Poor"
+        q_color, q_label = "#FF3355", "Poor"
 
     # ── styles ──────────────────────────────────────────────────────
     st.markdown(
         """
         <style>
             .approval-card {
-                background: linear-gradient(145deg, rgba(26,31,46,0.85) 0%, rgba(14,17,23,0.92) 100%);
-                border: 1px solid rgba(108,99,255,0.2);
-                border-radius: 16px;
+                background: linear-gradient(145deg, rgba(26,31,46,0.85) 0%, rgba(11,4,32,0.92) 100%);
+                border: 1px solid rgba(0,240,255,0.2);
+                border-radius:0;
                 padding: 1.8rem 2rem;
                 backdrop-filter: blur(16px);
                 box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
                 margin-bottom: 1.5rem;
             }
             .approval-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 1.15rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
                 margin-bottom: 0.3rem;
             }
             .approval-sub {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.78rem;
-                color: rgba(224,224,224,0.4);
+                color: rgba(242,233,255,0.4);
                 margin-bottom: 1rem;
             }
             .quality-ring {
@@ -87,33 +87,33 @@ def render_approval_panel(
             }
             .quality-circle {
                 width: 72px; height: 72px;
-                border-radius: 50%;
+                border-radius:0;
                 display: flex; align-items: center; justify-content: center;
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 900; font-size: 1.4rem;
             }
             .quality-meta {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
             }
             .quality-label {
                 font-size: 0.95rem; font-weight: 700;
             }
             .quality-rev {
-                font-size: 0.7rem; color: rgba(224,224,224,0.4);
+                font-size: 0.7rem; color: rgba(242,233,255,0.4);
             }
             .review-list {
                 margin: 0.3rem 0 0.8rem 0;
                 padding-left: 1.2rem;
             }
             .review-list li {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.8rem;
-                color: rgba(224,224,224,0.7);
+                color: rgba(242,233,255,0.7);
                 margin-bottom: 0.35rem;
                 line-height: 1.45;
             }
             .section-label {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 600; font-size: 0.82rem;
                 margin-bottom: 0.2rem;
             }
@@ -154,13 +154,13 @@ def render_approval_panel(
             f"""
             <div style="
                 padding: 0.8rem 1rem;
-                background: rgba(108,99,255,0.05);
-                border-left: 3px solid #6C63FF;
+                background: rgba(0,240,255,0.05);
+                border-left: 3px solid #00F0FF;
                 border-radius: 0 10px 10px 0;
                 margin-bottom: 1rem;
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.82rem;
-                color: rgba(224,224,224,0.7);
+                color: rgba(242,233,255,0.7);
                 line-height: 1.6;
             ">{summary}</div>
             """,
@@ -173,7 +173,7 @@ def render_approval_panel(
     with col_s:
         if strengths:
             st.markdown(
-                '<p class="section-label" style="color:#00E676;">✅ Strengths</p>',
+                '<p class="section-label" style="color:#39FF14;">✅ Strengths</p>',
                 unsafe_allow_html=True,
             )
             items = "".join(f"<li>{s}</li>" for s in strengths)
@@ -182,7 +182,7 @@ def render_approval_panel(
     with col_w:
         if weaknesses:
             st.markdown(
-                '<p class="section-label" style="color:#FF5252;">⚠️ Weaknesses</p>',
+                '<p class="section-label" style="color:#FF3355;">⚠️ Weaknesses</p>',
                 unsafe_allow_html=True,
             )
             items = "".join(f"<li>{w}</li>" for w in weaknesses)
@@ -190,7 +190,7 @@ def render_approval_panel(
 
     if suggestions:
         st.markdown(
-            '<p class="section-label" style="color:#FF9800;">💡 Suggestions</p>',
+            '<p class="section-label" style="color:#FFE600;">💡 Suggestions</p>',
             unsafe_allow_html=True,
         )
         items = "".join(f"<li>{s}</li>" for s in suggestions)
@@ -210,15 +210,15 @@ def render_approval_panel(
         """
         <style>
             div[data-testid="stHorizontalBlock"] .approve-btn button {
-                background: linear-gradient(135deg, #00E676, #00C853) !important;
-                color: #0E1117 !important; font-weight: 700 !important;
+                background: linear-gradient(135deg, #39FF14, #39FF14) !important;
+                color: #0B0420 !important; font-weight: 700 !important;
             }
             div[data-testid="stHorizontalBlock"] .revise-btn button {
-                background: linear-gradient(135deg, #FF9800, #F57C00) !important;
-                color: #0E1117 !important; font-weight: 700 !important;
+                background: linear-gradient(135deg, #FFE600, #FF7A00) !important;
+                color: #0B0420 !important; font-weight: 700 !important;
             }
             div[data-testid="stHorizontalBlock"] .reject-btn button {
-                background: linear-gradient(135deg, #FF5252, #D32F2F) !important;
+                background: linear-gradient(135deg, #FF3355, #FF3355) !important;
                 color: #fff !important; font-weight: 700 !important;
             }
         </style>
