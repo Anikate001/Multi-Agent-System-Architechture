@@ -20,17 +20,17 @@ class ResearchConfig:
 
 _DEPTH_OPTIONS = {
     "quick": {
-        "label": "⚡ Quick",
+        "label": "⚡ Easy",
         "desc": "Fast sweep — 2-3 min, surface-level overview",
         "icon": "⚡",
     },
     "standard": {
-        "label": "🔍 Standard",
+        "label": "🔍 Normal",
         "desc": "Balanced depth — 5-8 min, thorough analysis",
         "icon": "🔍",
     },
     "deep": {
-        "label": "🧬 Deep",
+        "label": "🧬 Hard",
         "desc": "Exhaustive research — 10-20 min, maximum rigour",
         "icon": "🧬",
     },
@@ -51,10 +51,10 @@ def render_research_input() -> Optional[ResearchConfig]:
                 background: linear-gradient(
                     145deg,
                     rgba(26, 31, 46, 0.85) 0%,
-                    rgba(14, 17, 23, 0.92) 100%
+                    rgba(11,4,32, 0.92) 100%
                 );
-                border: 1px solid rgba(108, 99, 255, 0.15);
-                border-radius: 16px;
+                border: 1px solid rgba(0,240,255, 0.15);
+                border-radius:0;
                 padding: 2rem 2rem 1.5rem 2rem;
                 backdrop-filter: blur(16px);
                 -webkit-backdrop-filter: blur(16px);
@@ -65,17 +65,17 @@ def render_research_input() -> Optional[ResearchConfig]:
             }
 
             .research-card-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 1.25rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
                 margin-bottom: 0.3rem;
             }
 
             .research-card-sub {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.82rem;
-                color: rgba(224, 224, 224, 0.45);
+                color: rgba(242,233,255, 0.45);
                 margin-bottom: 1.2rem;
             }
 
@@ -90,59 +90,59 @@ def render_research_input() -> Optional[ResearchConfig]:
                 padding: 0.9rem 0.8rem;
                 background: rgba(255, 255, 255, 0.03);
                 border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 12px;
+                border-radius:0;
                 text-align: center;
                 cursor: pointer;
                 transition: all 0.25s ease;
             }
 
             .depth-opt:hover {
-                border-color: rgba(108, 99, 255, 0.4);
-                background: rgba(108, 99, 255, 0.06);
+                border-color: rgba(0,240,255, 0.4);
+                background: rgba(0,240,255, 0.06);
             }
 
             .depth-opt.active {
-                border-color: #6C63FF;
-                background: rgba(108, 99, 255, 0.12);
-                box-shadow: 0 0 20px rgba(108, 99, 255, 0.15);
+                border-color: #00F0FF;
+                background: rgba(0,240,255, 0.12);
+                box-shadow: 0 0 20px rgba(0,240,255, 0.15);
             }
 
             .depth-icon { font-size: 1.4rem; margin-bottom: 0.25rem; }
 
             .depth-label {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 600;
                 font-size: 0.82rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
             }
 
             .depth-desc {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.7rem;
-                color: rgba(224, 224, 224, 0.4);
+                color: rgba(242,233,255, 0.4);
                 margin-top: 0.2rem;
             }
 
             div.stButton > button.launch-btn {
                 width: 100%;
                 padding: 0.85rem 2rem;
-                background: linear-gradient(135deg, #6C63FF 0%, #5A4FCF 100%);
+                background: linear-gradient(135deg, #00F0FF 0%, #B26BFF 100%);
                 color: #fff;
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 1rem;
                 letter-spacing: 1.5px;
                 border: none;
-                border-radius: 12px;
+                border-radius:0;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35);
+                box-shadow: 0 4px 20px rgba(0,240,255, 0.35);
                 text-transform: uppercase;
             }
 
             div.stButton > button.launch-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 30px rgba(108, 99, 255, 0.5);
+                box-shadow: 0 8px 30px rgba(0,240,255, 0.5);
             }
 
             .toggle-row {
@@ -153,15 +153,15 @@ def render_research_input() -> Optional[ResearchConfig]:
             }
 
             .toggle-label {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.85rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
             }
 
             .toggle-hint {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.7rem;
-                color: rgba(224,224,224,0.35);
+                color: rgba(242,233,255,0.35);
             }
         </style>
         """,
@@ -172,9 +172,9 @@ def render_research_input() -> Optional[ResearchConfig]:
     st.markdown(
         """
         <div class="research-card">
-            <div class="research-card-title">🚀 New Research Mission</div>
+            <div class="research-card-title">&#9654; NEW QUEST</div>
             <div class="research-card-sub">
-                Define your research question and let the agent swarm handle the rest.
+                Name your quest. Your five-agent party handles the rest.
             </div>
         </div>
         """,
@@ -195,8 +195,8 @@ def render_research_input() -> Optional[ResearchConfig]:
 
     # ── depth selector ──────────────────────────────────────────────
     st.markdown(
-        "<p style='font-family:Inter,sans-serif;font-size:0.85rem;"
-        "font-weight:600;color:#E0E0E0;margin-bottom:0.3rem;'>"
+        "<p style='font-family:VT323,monospace;font-size:0.85rem;"
+        "font-weight:600;color:#F2E9FF;margin-bottom:0.3rem;'>"
         "Research Depth</p>",
         unsafe_allow_html=True,
     )
@@ -233,22 +233,22 @@ def render_research_input() -> Optional[ResearchConfig]:
             <div style="
                 margin-top: 1.1rem;
                 padding: 0.7rem 1rem;
-                background: rgba(108,99,255,0.08);
-                border: 1px solid rgba(108,99,255,0.15);
-                border-radius: 10px;
+                background: rgba(0,240,255,0.08);
+                border: 1px solid rgba(0,240,255,0.15);
+                border-radius:0;
                 text-align: center;
             ">
                 <span style="
-                    font-family: 'Inter', sans-serif;
+                    font-family: 'VT323', monospace;
                     font-size: 1.5rem;
                     font-weight: 800;
-                    color: #6C63FF;
+                    color: #00F0FF;
                 ">{max_sources}</span>
                 <br/>
                 <span style="
-                    font-family: 'Inter', sans-serif;
+                    font-family: 'VT323', monospace;
                     font-size: 0.7rem;
-                    color: rgba(224,224,224,0.4);
+                    color: rgba(242,233,255,0.4);
                     text-transform: uppercase;
                     letter-spacing: 1px;
                 ">sources</span>
@@ -278,7 +278,7 @@ def render_research_input() -> Optional[ResearchConfig]:
     st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
 
     launched = st.button(
-        "🚀  LAUNCH RESEARCH",
+        "▶  PRESS START",
         use_container_width=True,
         type="primary",
     )

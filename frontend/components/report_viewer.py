@@ -27,16 +27,16 @@ def _extract_headings(markdown: str) -> list[dict]:
 def _quality_badge(score: float) -> str:
     """Return an HTML badge coloured by quality score (0-10)."""
     if score >= 8:
-        color, bg = "#00E676", "rgba(0,230,118,0.10)"
+        color, bg = "#39FF14", "rgba(57,255,20,0.10)"
         label = "Excellent"
     elif score >= 6:
-        color, bg = "#FF9800", "rgba(255,152,0,0.10)"
+        color, bg = "#FFE600", "rgba(255,230,0,0.10)"
         label = "Good"
     elif score >= 4:
-        color, bg = "#FFC107", "rgba(255,193,7,0.10)"
+        color, bg = "#FFE600", "rgba(255,193,7,0.10)"
         label = "Fair"
     else:
-        color, bg = "#FF5252", "rgba(255,82,82,0.10)"
+        color, bg = "#FF3355", "rgba(255,51,85,0.10)"
         label = "Needs Work"
 
     return f"""
@@ -44,14 +44,14 @@ def _quality_badge(score: float) -> str:
         display:inline-flex; align-items:center; gap:0.5rem;
         padding:0.35rem 0.9rem;
         background:{bg}; border:1px solid {color}40;
-        border-radius:8px;
+        border-radius:0;
     ">
         <span style="
-            font-family:'Inter',sans-serif; font-size:1.3rem; font-weight:800;
+            font-family:'VT323', monospace; font-size:1.3rem; font-weight:800;
             color:{color};
         ">{score:.1f}</span>
         <span style="
-            font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:600;
+            font-family:'VT323', monospace; font-size:0.7rem; font-weight:600;
             color:{color}; text-transform:uppercase; letter-spacing:1px;
         ">{label}</span>
     </div>
@@ -95,10 +95,10 @@ def render_report(report_data: dict) -> None:
                 margin-bottom: 1.2rem;
             }
             .report-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 800;
                 font-size: 1.5rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
                 margin: 0;
             }
             .report-meta-row {
@@ -114,69 +114,69 @@ def render_report(report_data: dict) -> None:
                 padding: 0.3rem 0.75rem;
                 background: rgba(255,255,255,0.04);
                 border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 8px;
-                font-family: 'Inter', sans-serif;
+                border-radius:0;
+                font-family: 'VT323', monospace;
                 font-size: 0.72rem;
-                color: rgba(224,224,224,0.6);
+                color: rgba(242,233,255,0.6);
             }
-            .meta-chip strong { color: #E0E0E0; font-weight: 700; }
+            .meta-chip strong { color: #F2E9FF; font-weight: 700; }
 
             .report-body {
-                background: linear-gradient(145deg, rgba(26,31,46,0.6) 0%, rgba(14,17,23,0.8) 100%);
-                border: 1px solid rgba(108,99,255,0.1);
-                border-radius: 16px;
+                background: linear-gradient(145deg, rgba(26,31,46,0.6) 0%, rgba(11,4,32,0.8) 100%);
+                border: 1px solid rgba(0,240,255,0.1);
+                border-radius:0;
                 padding: 2rem 2.2rem;
                 backdrop-filter: blur(12px);
                 box-shadow: 0 8px 32px rgba(0,0,0,0.3);
                 line-height: 1.75;
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.92rem;
-                color: rgba(224,224,224,0.85);
+                color: rgba(242,233,255,0.85);
             }
-            .report-body h1, .report-body h2, .report-body h3 { color: #E0E0E0; }
-            .report-body h2 { border-bottom: 1px solid rgba(108,99,255,0.15); padding-bottom: 0.4rem; }
-            .report-body a { color: #6C63FF; text-decoration: none; }
+            .report-body h1, .report-body h2, .report-body h3 { color: #F2E9FF; }
+            .report-body h2 { border-bottom: 1px solid rgba(0,240,255,0.15); padding-bottom: 0.4rem; }
+            .report-body a { color: #00F0FF; text-decoration: none; }
             .report-body a:hover { text-decoration: underline; }
             .report-body code {
-                background: rgba(108,99,255,0.08);
+                background: rgba(0,240,255,0.08);
                 padding: 0.15rem 0.4rem;
-                border-radius: 4px;
+                border-radius:0;
                 font-size: 0.85em;
-                color: #A78BFA;
+                color: #FF2E97;
             }
             .report-body blockquote {
-                border-left: 3px solid #6C63FF;
+                border-left: 3px solid #00F0FF;
                 margin-left: 0;
                 padding-left: 1rem;
-                color: rgba(224,224,224,0.6);
+                color: rgba(242,233,255,0.6);
                 font-style: italic;
             }
 
             .toc-container {
                 background: rgba(255,255,255,0.02);
                 border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 12px;
+                border-radius:0;
                 padding: 1rem 1.2rem;
                 margin-bottom: 1rem;
             }
             .toc-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 0.82rem;
-                color: rgba(224,224,224,0.5);
+                color: rgba(242,233,255,0.5);
                 text-transform: uppercase;
                 letter-spacing: 1.5px;
                 margin-bottom: 0.6rem;
             }
             .toc-item {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.78rem;
-                color: rgba(224,224,224,0.55);
+                color: rgba(242,233,255,0.55);
                 padding: 0.2rem 0;
                 cursor: pointer;
                 transition: color 0.2s;
             }
-            .toc-item:hover { color: #6C63FF; }
+            .toc-item:hover { color: #00F0FF; }
             .toc-indent { padding-left: 1rem; }
         </style>
         """,

@@ -51,31 +51,31 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
                 margin-bottom: 1rem;
             }
             .cite-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 700;
                 font-size: 1.1rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
             }
             .cite-coverage {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.4rem;
                 padding: 0.3rem 0.8rem;
-                border-radius: 8px;
-                font-family: 'Inter', sans-serif;
+                border-radius:0;
+                font-family: 'VT323', monospace;
                 font-size: 0.75rem;
                 font-weight: 600;
             }
             .cite-card {
                 background: rgba(255,255,255,0.02);
                 border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 12px;
+                border-radius:0;
                 padding: 0.9rem 1rem;
                 margin-bottom: 0.6rem;
                 transition: border-color 0.25s;
             }
             .cite-card:hover {
-                border-color: rgba(108,99,255,0.3);
+                border-color: rgba(0,240,255,0.3);
             }
             .cite-card-top {
                 display: flex;
@@ -84,9 +84,9 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
             }
             .cite-status-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
             .cite-text {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.82rem;
-                color: rgba(224,224,224,0.75);
+                color: rgba(242,233,255,0.75);
                 line-height: 1.5;
                 flex: 1;
             }
@@ -98,9 +98,9 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
                 padding-left: 1.7rem;
             }
             .cite-url {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.7rem;
-                color: #6C63FF;
+                color: #00F0FF;
                 text-decoration: none;
                 word-break: break-all;
             }
@@ -109,14 +109,14 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
                 flex: 0 0 80px;
                 height: 6px;
                 background: rgba(255,255,255,0.06);
-                border-radius: 3px;
+                border-radius:0;
                 overflow: hidden;
             }
-            .conf-bar-fill { height: 100%; border-radius: 3px; }
+            .conf-bar-fill { height: 100%; border-radius:0; }
             .conf-label {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.65rem;
-                color: rgba(224,224,224,0.4);
+                color: rgba(242,233,255,0.4);
                 min-width: 32px;
                 text-align: right;
             }
@@ -124,21 +124,21 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
             .source-card {
                 background: rgba(0,0,0,0.15);
                 border: 1px solid rgba(255,255,255,0.04);
-                border-radius: 10px;
+                border-radius:0;
                 padding: 0.75rem 1rem;
                 margin-bottom: 0.5rem;
             }
             .source-title {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-weight: 600;
                 font-size: 0.82rem;
-                color: #E0E0E0;
+                color: #F2E9FF;
                 margin-bottom: 0.2rem;
             }
             .source-snippet {
-                font-family: 'Inter', sans-serif;
+                font-family: 'VT323', monospace;
                 font-size: 0.72rem;
-                color: rgba(224,224,224,0.45);
+                color: rgba(242,233,255,0.45);
                 line-height: 1.45;
             }
         </style>
@@ -148,11 +148,11 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
 
     # ── header + coverage badge ─────────────────────────────────────
     if coverage >= 80:
-        cov_color, cov_bg = "#00E676", "rgba(0,230,118,0.10)"
+        cov_color, cov_bg = "#39FF14", "rgba(57,255,20,0.10)"
     elif coverage >= 50:
-        cov_color, cov_bg = "#FF9800", "rgba(255,152,0,0.10)"
+        cov_color, cov_bg = "#FFE600", "rgba(255,230,0,0.10)"
     else:
-        cov_color, cov_bg = "#FF5252", "rgba(255,82,82,0.10)"
+        cov_color, cov_bg = "#FF3355", "rgba(255,51,85,0.10)"
 
     st.markdown(
         f"""
@@ -183,11 +183,11 @@ def render_citations(citations: list[dict], sources: list[dict] | None = None) -
         conf_pct = int(confidence * 100)
 
         if confidence >= 0.8:
-            bar_color = "#00E676"
+            bar_color = "#39FF14"
         elif confidence >= 0.5:
-            bar_color = "#FF9800"
+            bar_color = "#FFE600"
         else:
-            bar_color = "#FF5252"
+            bar_color = "#FF3355"
 
         card_html = f"""
         <div class="cite-card">
