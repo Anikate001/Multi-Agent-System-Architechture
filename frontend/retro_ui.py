@@ -405,6 +405,26 @@ textarea::placeholder {{ color: rgba(242,233,255,0.45) !important; }}
 [data-testid="stChatMessage"] [data-testid^="stChatMessageAvatar"], [data-testid="stChatMessage"] img {{ border-radius: 0 !important; }}
 [data-testid="stFileUploaderDropzone"] {{ border-radius: 0 !important; border: 2px dashed var(--cyan) !important; background: #0E0626 !important; }}
 .px-num, .px-num * {{ font-family: 'Press Start 2P', monospace !important; font-size-adjust: none !important; font-size: 1.05rem !important; }}
+.chunk-card {{
+  background: #05020F !important; border: none !important; border-radius: 0 !important; margin: 10px 4px !important;
+  box-shadow: 0 -3px 0 0 var(--panel2), 0 3px 0 0 var(--panel2), -3px 0 0 0 var(--panel2), 3px 0 0 0 var(--panel2) !important;
+}}
+.chunk-card:hover {{ box-shadow: 0 -3px 0 0 var(--cyan), 0 3px 0 0 var(--cyan), -3px 0 0 0 var(--cyan), 3px 0 0 0 var(--cyan), 0 0 16px rgba(0,240,255,.3) !important; }}
+.chunk-card .xp-bar {{ margin: 6px 0 4px; }} .chunk-card .xp-cell {{ height: 6px; }}
+.chunk-rank {{ color: var(--yellow) !important; }}
+[class*="st-key-chip_"] button, [class*="st-key-chip_"] button[data-testid] {{
+  background: var(--panel) !important; color: var(--cyan) !important; min-height: 44px;
+  box-shadow: 0 -3px 0 0 var(--cyan), 0 3px 0 0 var(--cyan), -3px 0 0 0 var(--cyan), 3px 0 0 0 var(--cyan) !important;
+}}
+[class*="st-key-chip_"] button p {{ font-family: 'VT323', monospace !important; font-size: 1.1rem !important; text-transform: none; color: var(--cyan) !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.1; }}
+[class*="st-key-chip_"] button:hover {{ background: var(--cyan) !important; }}
+[class*="st-key-chip_"] button:hover p {{ color: var(--night) !important; }}
+.empty-icon .px-sprite {{ filter: drop-shadow(0 0 12px rgba(255,46,151,.6)); }}
+[data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] button {{
+  background: var(--magenta) !important; color: #fff !important; border-radius: 0 !important;
+  box-shadow: 0 3px 0 0 #8A0E4D, 0 0 14px rgba(255,46,151,.6) !important; min-width: 40px; min-height: 40px;
+}}
+[data-testid="stExpandSidebarButton"] *, [data-testid="stSidebarCollapsedControl"] button * {{ color: #fff !important; }}
 /* sliders: square thumb */
 [data-testid="stSlider"] [role="slider"] {{
   border-radius: 0 !important; background: var(--yellow) !important;
