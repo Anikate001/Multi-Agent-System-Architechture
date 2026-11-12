@@ -155,8 +155,9 @@ def render_workflow_graph(status_data: dict) -> None:
         mode="markers+text",
         marker=dict(
             size=node_sizes,
+            symbol="square",
             color=node_colors,
-            line=dict(width=2, color="rgba(255,255,255,0.15)"),
+            line=dict(width=4, color="#05020F"),
             opacity=0.95,
         ),
         text=node_labels,

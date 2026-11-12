@@ -28,7 +28,7 @@ _PLOTLY_LAYOUT = dict(
 )
 
 _AGENT_COLORS = {
-    "planner":    "#00F0FF",
+    "planner":    "#B26BFF",
     "researcher": "#00F0FF",
     "analyst":    "#FFE600",
     "writer":     "#39FF14",
@@ -42,19 +42,21 @@ def _metric_card(label: str, value: str, icon: str, color: str) -> str:
         flex: 1;
         min-width: 120px;
         padding: 0.85rem 0.9rem;
-        background: linear-gradient(135deg, {color}12 0%, {color}06 100%);
-        border: 1px solid {color}25;
+        background: #05020F;
+        border: none;
+        box-shadow: 0 -4px 0 0 {color}, 0 4px 0 0 {color}, -4px 0 0 0 {color}, 4px 0 0 0 {color}, 0 0 18px {color}40;
+        margin: 4px;
         border-radius:0;
         text-align: center;
     ">
         <div style="font-size:1.3rem;margin-bottom:0.2rem;">{icon}</div>
-        <div style="
-            font-family:'VT323', monospace; font-size:1.2rem; font-weight:800;
-            color:{color};
+        <div class="px-num" style="
+            font-family:'Press Start 2P', monospace; font-size:1rem;
+            color:{color}; text-shadow:0 0 10px {color}88; margin:4px 0;
         ">{value}</div>
         <div style="
-            font-family:'VT323', monospace; font-size:0.65rem;
-            color:rgba(242,233,255,0.4); text-transform:uppercase; letter-spacing:1px;
+            font-family:'VT323', monospace; font-size:0.95rem;
+            color:rgba(242,233,255,0.75); text-transform:uppercase; letter-spacing:1px;
         ">{label}</div>
     </div>
     """
@@ -188,8 +190,8 @@ def render_analytics(metrics_data: dict) -> None:
                 x=[a.capitalize() for a in agent_names],
                 y=latency_vals,
                 mode="lines+markers",
-                line=dict(color="#00F0FF", width=2.5, shape="spline"),
-                marker=dict(size=8, color=colors, line=dict(width=2, color="#0B0420")),
+                line=dict(color="#00F0FF", width=2.5, shape="hv"),
+                marker=dict(size=10, symbol="square", color=colors, line=dict(width=2, color="#0B0420")),
                 fill="tozeroy",
                 fillcolor="rgba(0,240,255,0.08)",
                 hovertemplate="<b>%{x}</b><br>%{y:.1f}s<extra></extra>",
@@ -217,8 +219,9 @@ def render_analytics(metrics_data: dict) -> None:
                 x=[f"Draft {i}" for i in iterations],
                 y=quality_scores,
                 mode="lines+markers+text",
-                line=dict(color="#39FF14", width=2.5, shape="spline"),
+                line=dict(color="#39FF14", width=2.5, shape="hv"),
                 marker=dict(
+                    symbol="square",
                     size=12,
                     color=["#FF3355" if s < 6 else "#FFE600" if s < 8 else "#39FF14" for s in quality_scores],
                     line=dict(width=2, color="#0B0420"),
